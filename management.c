@@ -4,54 +4,10 @@ int main()
 {
     int exit=0;
     int login_flag=0;
-    int i, j, k;
     
-    YEAR *head_YEAR = NULL, *cur_YEAR = NULL;
-    STUDENT *head_STUDENT = NULL, *cur_STUDENT = NULL;
-    CGPA *head_CGPA = NULL, *cur_CGPA = NULL;
-    ASSIGN *head_ASSIGN = NULL, *cur_ASSIGN = NULL;
-
     Create_Struct();
-
    
-    printf("%d\n", TOP->Year_Size);
-
-    head_YEAR = TOP->ST_YEAR;
-    cur_YEAR = head_YEAR->link;
-    
-    
-    head_STUDENT = head_YEAR->ST_NUM;
-    cur_STUDENT = head_STUDENT->link;
-    
-    for(i = 0; i < TOP->Year_Size; i++){
-        printf("%s %d\n", cur_YEAR->year, cur_YEAR->Num_Size);
-        
-        for(j = 0; j < cur_YEAR->Num_Size; j++){
-            printf("%4s%4s\n", cur_YEAR->year, cur_STUDENT->number);
-            printf("%s\n", cur_STUDENT->password);
-            printf("%d %d\n", cur_STUDENT->Assign_Size, cur_STUDENT->CGPA_Size);
-            
-            head_ASSIGN = cur_STUDENT->Child_A;
-            cur_ASSIGN = head_ASSIGN->link;
-            head_CGPA = cur_STUDENT->Child_C;
-            cur_CGPA = head_CGPA->link;
-            
-            for(k = 0; k < cur_STUDENT->Assign_Size; k++){
-                printf("%s/%s/%s/%d %d\n", cur_ASSIGN->name, cur_ASSIGN->describe, cur_ASSIGN->professor, cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
-                cur_ASSIGN = cur_ASSIGN->link;    
-            }
-        
-            for(k = 0; k < cur_STUDENT->CGPA_Size; k++){
-                printf("%d %.2f\n", cur_CGPA->semester, cur_CGPA->score);
-                cur_CGPA = cur_CGPA->link;    
-            }
-            cur_STUDENT = cur_STUDENT->link;
-        }
-        printf("\n");
-    
-        cur_YEAR = cur_YEAR->link;
-    }
-  /*  initscr();
+    initscr();
 
     while(!exit){ 
         clear();
@@ -70,8 +26,8 @@ int main()
         }
     }
     endwin();
-    Save_Data();
-    system("clear");*/
+//    Save_Data();
+    system("clear");
     return 0;
 }
 void Save_Data()
@@ -85,7 +41,49 @@ void Save_Data()
     fpoint=fopen("data.txt","w");
 
 
+    YEAR *head_YEAR = NULL, *cur_YEAR = NULL;
+    STUDENT *head_STUDENT = NULL, *cur_STUDENT = NULL;
+    CGPA *head_CGPA = NULL, *cur_CGPA = NULL;
+    ASSIGN *head_ASSIGN = NULL, *cur_ASSIGN = NULL;
 
+    fprintf(fpoint, "%d\n", TOP->Year_Size);
+
+    head_YEAR = TOP->ST_YEAR;
+    cur_YEAR = head_YEAR;
+    
+    for(i = 0; i < TOP->Year_Size; i++){
+        fprintf(fpoint, "%s %d\n", cur_YEAR->year, cur_YEAR->Num_Size);
+
+        if(i == 0){
+            head_STUDENT = head_YEAR->ST_NUM;
+            cur_STUDENT = head_STUDENT;
+        }
+        for(j = 0; j < cur_YEAR->Num_Size; j++){
+            fprintf(fpoint, "%4s%4s\n", cur_YEAR->year, cur_STUDENT->number);
+            fprintf(fpoint, "%s\n", cur_STUDENT->password);
+            fprintf(fpoint, "%d %d\n", cur_STUDENT->Assign_Size, cur_STUDENT->CGPA_Size);
+            
+            head_ASSIGN = cur_STUDENT->Child_A;
+            cur_ASSIGN = head_ASSIGN;
+            head_CGPA = cur_STUDENT->Child_C;
+            cur_CGPA = head_CGPA;
+            
+            for(k = 0; k < cur_STUDENT->Assign_Size; k++){
+                fprintf(fpoint, "%s/%s/%s/%d %d\n", cur_ASSIGN->name, cur_ASSIGN->describe, cur_ASSIGN->professor, cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
+                cur_ASSIGN = cur_ASSIGN->link;    
+            }
+        
+            for(k = 0; k < cur_STUDENT->CGPA_Size; k++){
+                fprintf(fpoint, "%d %.2f\n", cur_CGPA->semester, cur_CGPA->score);
+                cur_CGPA = cur_CGPA->link;    
+            }
+            cur_STUDENT = cur_STUDENT->link;
+        }
+        cur_YEAR = cur_YEAR->link;
+        fprintf(fpoint, "\n");
+    }
+
+    fclose(fpoint);
 
 }
 void Create_Struct()
@@ -101,62 +99,62 @@ void Create_Struct()
     char temp_year[5], temp_num[5], temp_snum[9];
     FILE* fpoint = fopen("data.txt", "r");
 
-    YEAR *head_YEAR = NULL, *new_YEAR = NULL, *cur_YEAR = NULL;
-    STUDENT *head_STUDENT = NULL, *new_STUDENT, *cur_STUDENT = NULL;
-    CGPA *head_CGPA = NULL, *new_CGPA, *cur_CGPA = NULL;
-    ASSIGN *head_ASSIGN = NULL, *new_ASSIGN, *cur_ASSIGN = NULL;
+    YEAR *head_YEAR = NULL, *new_YEAR = NULL, *tail_YEAR = NULL;
+    STUDENT *head_STUDENT = NULL, *new_STUDENT = NULL, *tail_STUDENT = NULL;
+    CGPA *head_CGPA = NULL, *new_CGPA = NULL, *tail_CGPA = NULL;
+    ASSIGN *head_ASSIGN = NULL, *new_ASSIGN = NULL, *tail_ASSIGN = NULL;
 
     TOP = malloc(sizeof(TREE_HEAD));
     fscanf(fpoint, "%d", &TOP->Year_Size);
     
-    TOP->ST_YEAR = malloc(sizeof(YEAR));
-    head_YEAR = TOP->ST_YEAR;
     
-    head_YEAR->ST_NUM = malloc(sizeof(STUDENT));
-    head_STUDENT = head_YEAR->ST_NUM;
-
     for(i = 0; i < TOP->Year_Size; i++){
         new_YEAR = malloc(sizeof(YEAR));
         fscanf(fpoint, "%s %d", new_YEAR->year, &new_YEAR->Num_Size);
 
-        if(head_YEAR->link == NULL){
-            head_YEAR->link = new_YEAR;    
+        if(head_YEAR == NULL){
+            head_YEAR = new_YEAR;
+            TOP->ST_YEAR = head_YEAR; 
+            tail_YEAR = new_YEAR;
         }
         else{
-            new_YEAR->link = head_YEAR->link;
-            head_YEAR->link = new_YEAR;
+            tail_YEAR->link = new_YEAR;
+            tail_YEAR = new_YEAR;
         }
         
-        new_STUDENT = malloc(sizeof(STUDENT));
         for(j = 0; j < new_YEAR->Num_Size; j++){
-            head_STUDENT = head_YEAR->ST_NUM;
+            new_STUDENT = malloc(sizeof(STUDENT));
             fscanf(fpoint, "%*4s%4s\n", new_STUDENT->number);
             fscanf(fpoint, "%s\n", new_STUDENT->password);
             fscanf(fpoint, "%d %d\n", &new_STUDENT->Assign_Size, &new_STUDENT->CGPA_Size);
             
-            if(head_STUDENT->link == NULL){
-                head_STUDENT->link = new_STUDENT;    
+            if(head_STUDENT == NULL){
+                head_STUDENT = new_STUDENT;    
+                head_YEAR->ST_NUM = head_STUDENT;
+                tail_STUDENT = new_STUDENT;    
             }
             else{
-                new_STUDENT->link = head_STUDENT->link;
-                head_STUDENT->link = new_STUDENT;
+                tail_STUDENT->link = new_STUDENT;
+                tail_STUDENT = new_STUDENT;
             }
            
-            new_STUDENT->Child_A = malloc(sizeof(ASSIGN));
             head_ASSIGN = new_STUDENT->Child_A;
-            new_STUDENT->Child_C = malloc(sizeof(CGPA));
+            tail_ASSIGN = new_STUDENT->Child_A;
             head_CGPA = new_STUDENT->Child_C;
+            tail_CGPA = new_STUDENT->Child_C;
     
             for(k = 0; k < new_STUDENT->Assign_Size; k++){
                 new_ASSIGN = malloc(sizeof(ASSIGN));
                 fscanf(fpoint, "%100[^/] %*c %100[^/] %*c %100[^/] %*c %d %d\n", new_ASSIGN->name, new_ASSIGN->describe, new_ASSIGN->professor, &new_ASSIGN->date[0], &new_ASSIGN->date[1]);
                 
-                if(head_ASSIGN->link == NULL){
-                    head_ASSIGN->link = new_ASSIGN;    
+                if(head_ASSIGN == NULL){
+                    head_ASSIGN = new_ASSIGN;
+                    new_STUDENT->Child_A = head_ASSIGN;
+                    tail_ASSIGN = new_ASSIGN;
                 }
                 else{
-                    new_ASSIGN->link = head_ASSIGN->link;
-                    head_ASSIGN->link = new_ASSIGN;
+                    tail_ASSIGN->link = new_ASSIGN;
+                    tail_ASSIGN = new_ASSIGN;
                 }
             }
         
@@ -164,12 +162,14 @@ void Create_Struct()
                 new_CGPA = malloc(sizeof(CGPA));
                 fscanf(fpoint, "%d %f\n", &new_CGPA->semester, &new_CGPA->score);
                 
-                if(head_CGPA->link == NULL){
-                    head_CGPA->link = new_CGPA;    
+                if(head_CGPA == NULL){
+                    head_CGPA = new_CGPA;
+                    new_STUDENT->Child_C = head_CGPA;
+                    tail_CGPA = new_CGPA;
                 }
                 else{
-                    new_CGPA->link = head_CGPA->link;
-                    head_CGPA->link = new_CGPA;
+                    tail_CGPA->link = new_CGPA;
+                    tail_CGPA = new_CGPA;
                 }
             }
         }
