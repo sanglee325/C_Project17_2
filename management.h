@@ -32,12 +32,14 @@ typedef struct CHILD1
   char describe[100];
   char professor[100];
   int date[2];
+  struct CHILD1 *link;
 }ASSIGN;
 
 typedef struct CHILD2
 {
   int semester;
   float score;
+  struct CHILD2 *link;
 }CGPA;
 typedef struct SUB_SUB_HEAD
 {
@@ -47,11 +49,13 @@ typedef struct SUB_SUB_HEAD
   int Assign_Size;
   int CGPA_Size;
   CGPA* Child_C;
+  struct SUB_SUB_HEAD *link;
 }STUDENT;
 typedef struct SUB_HEAD
 {
   char year[5];
   int Num_Size;
+  struct SUB_HEAD *link;
   STUDENT* ST_NUM;
 }YEAR;
 
