@@ -3,7 +3,7 @@
 int main(){
     int exit=0;
     int login_flag=0;
-    int login_exit = 0;
+    int temppw_flag = 0;
     
     Create_Struct();
    
@@ -51,7 +51,7 @@ int main(){
                             }
                             break;                            
     
-                        case MENU_CHANGE : 
+                        case MENU_CHANGE :
                             break;
                         
                         case MENU_LOGOUT :
@@ -80,6 +80,13 @@ int main(){
                 break;
             
             case MENU_TEMP :
+                temppw_flag = Temp_Password();
+                if(temppw_flag == 0){
+                    clear();
+                    printw("Wrong Information\n");
+                    printw("Press any key to return\n");
+                }
+                getch();
                 break;
             
             case MENU_QUIT :
@@ -168,10 +175,6 @@ void Create_Struct()
     char temp_year[5], temp_num[5], temp_snum[9];
     FILE* fpoint = fopen("data.txt", "r");
 
-    YEAR *head_YEAR = NULL, *new_YEAR = NULL, *tail_YEAR = NULL;
-    STUDENT *head_STUDENT = NULL, *new_STUDENT = NULL, *tail_STUDENT = NULL;
-    CGPA *head_CGPA = NULL, *new_CGPA = NULL, *tail_CGPA = NULL;
-    ASSIGN *head_ASSIGN = NULL, *new_ASSIGN = NULL, *tail_ASSIGN = NULL;
 
     TOP = malloc(sizeof(TREE_HEAD));
     fscanf(fpoint, "%d", &TOP->Year_Size);
@@ -476,11 +479,6 @@ int login()
     char year[5]={};
     char num[5]={};
     
-    YEAR *head_YEAR = NULL, *cur_YEAR = NULL;
-    STUDENT *head_STUDENT = NULL, *cur_STUDENT = NULL;
-    CGPA *head_CGPA = NULL, *cur_CGPA = NULL;
-    ASSIGN *head_ASSIGN = NULL, *cur_ASSIGN = NULL;
-    
     for(i = 0; i < 4; i++)
         year[i] = Curr_Num[i];
     for(i = 4; i < 8; i++)
@@ -522,19 +520,78 @@ int login()
     return 0;
 }
 
-void Temp_Password()
-{
+int Temp_Password(){
     int flag1=0;
-    int i, j, k;
+    int year_flag = 0, num_flag = 0;//added->to check info
+    int i; //j, k; used linked list, no need to use repeats
     char num[5]={};
+    char year[5]={};
+    int temp_num;//to make random Password
     char temppassword[8];
     float temp;
+
     clear();
     echo();
     srand(time(NULL));
     printw("Student Number:");
     scanw("%s",Curr_Num);
-    /*
-       To do...
-       */
+    
+    for(i = 0; i < 4; i++)
+        year[i] = Curr_Num[i];
+    for(i = 4; i < 8; i++)
+        num[i - 4] = Curr_Num[i];//copying st number
+
+    
+    head_YEAR = TOP->ST_YEAR;
+    cur_YEAR = head_YEAR;
+    
+    
+    for(i = 0; i < TOP->Year_Size; i++){
+        if(!strcmp(cur_YEAR->year, year)){
+            year_flag = 1;
+            break;
+        }
+        cur_YEAR = cur_YEAR->link;
+    }
+    
+
+    if(year_flag == 1){
+        head_STUDENT = head_YEAR->ST_NUM;
+        cur_STUDENT = head_STUDENT;
+    
+        for(i = 0; i < cur_YEAR->Num_Size; i++){
+            if(!strcmp(cur_STUDENT->number, num)){
+                num_flag = 1;
+                break;
+            }
+            cur_STUDENT = cur_STUDENT->link;
+        }
+    }
+    
+    
+    if(num_flag == 1){
+        printw("Input latest semester's GPA : ");
+        scanw("%f", &temp);
+        
+        head_CGPA = cur_STUDENT->Child_C;
+        cur_CGPA = head_CGPA;
+        
+        for(i = 0; i < cur_STUDENT->CGPA_Size - 1; i++)
+            cur_CGPA = cur_CGPA->link;
+
+        if(cur_CGPA->score == temp) flag1 = 1;
+    }
+
+
+    if(flag1 == 1){
+        for(i = 0; i < 8; i++){
+            temp_num = rand() % 93 + 21;
+            temppassword[i] = (char)temp_num;
+        }
+        printw("Temporary Password is <%s>\n", temppassword);
+        strcpy(cur_STUDENT->password, temppassword);
+        return 1;
+    }
+
+    return 0;
 }
