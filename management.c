@@ -1,9 +1,9 @@
 #include "management.h"
 
-int main()
-{
+int main(){
     int exit=0;
     int login_flag=0;
+    int login_exit = 0;
     
     Create_Struct();
    
@@ -11,17 +11,86 @@ int main()
 
     while(!exit){ 
         clear();
+        
         switch(Account_Manage()){
+            clear();
             case MENU_LOGIN :
-                login();
+                clear();
+                printw("Student Number : ");
+                scanw("%s", Curr_Num);
+                
+                printw("Password : ");
+                noecho();
+                scanw("%s", Curr_Pass);
+                echo();
+
+                login_flag = login();
+                if(login_flag == 1){
+                    clear();
+                    switch(menu()){
+                        case MENU_ASSIGN :
+                            break;
+                        
+                        case MENU_CGPA :
+                            switch(cgpa_menu()){
+                                case CGPA_ADD : 
+                                    break;
+                                
+                                case CGPA_VIEW : 
+                                    break;
+                                
+                                case CGPA_QUIT : 
+                                    break;
+                                
+                                default : 
+                                    clear();
+                                    printw("Wrong Key\n");
+                                    printw("Press any key to return\n");
+                                    getch();
+                                    
+                            }
+                            break;                            
+    
+                        case MENU_CHANGE : 
+                            break;
+                        
+                        case MENU_LOGOUT :
+                            break;
+                        
+                        default :
+                            clear();
+                            printw("Wrong Key\n");
+                            printw("Press any key to return\n");
+                            getch();
+                            break;
+                    } 
+                }
+                else{
+                    clear();
+                    printw("Wrong Information\n");
+                    printw("Press any key to return\n");
+                    getch();
+                }
                 break;
+            
             case MENU_NEW : 
                 break;
+            
             case MENU_DEL :
                 break;
+            
             case MENU_TEMP :
                 break;
+            
             case MENU_QUIT :
+                exit = 1;
+                break;
+            
+            default :
+                clear();
+                printw("Wrong Key\n");
+                printw("Press any key to return\n");
+                getch();
                 break;
         }
     }
@@ -406,36 +475,46 @@ int login()
     int pass_flag=0;
     char year[5]={};
     char num[5]={};
-    for(i=0;i<4;i++)
-        year[i]=Curr_Num[i];
-    for(i=4;i<8;i++)
-        num[i-4]=Curr_Num[i];
-    for(i=0;i<TOP->Year_Size;i++)
-    {
-        if(!strcmp(TOP->ST_YEAR[i].year,year))
-        {
-            year_flag=1;
+    
+    YEAR *head_YEAR = NULL, *cur_YEAR = NULL;
+    STUDENT *head_STUDENT = NULL, *cur_STUDENT = NULL;
+    CGPA *head_CGPA = NULL, *cur_CGPA = NULL;
+    ASSIGN *head_ASSIGN = NULL, *cur_ASSIGN = NULL;
+    
+    for(i = 0; i < 4; i++)
+        year[i] = Curr_Num[i];
+    for(i = 4; i < 8; i++)
+        num[i - 4] = Curr_Num[i];//copying st number
+
+    head_YEAR = TOP->ST_YEAR;
+    cur_YEAR = head_YEAR;
+    
+    for(i = 0; i < TOP->Year_Size; i++){
+        if(!strcmp(cur_YEAR->year, year)){
+            year_flag = 1;
             break;
         }
+        cur_YEAR = cur_YEAR->link;
     }
-    if(year_flag==1)
-    {
-        for(j=0;j<TOP->ST_YEAR[i].Num_Size;j++)
-        {
-            if(!strcmp(TOP->ST_YEAR[i].ST_NUM[j].number,num))
-            {
-                num_flag=1;
+    if(year_flag == 1){
+        head_STUDENT = head_YEAR->ST_NUM;
+        cur_STUDENT = head_STUDENT;
+    
+        for(j = 0; j < cur_YEAR->Num_Size;j++){
+            if(!strcmp(cur_STUDENT->number, num)){
+                num_flag = 1;
                 break;
             }
+            cur_STUDENT = cur_STUDENT->link;
         }
     }
-    if(num_flag==1)
-    {
-        if(!strcmp(TOP->ST_YEAR[i].ST_NUM[j].password,Curr_Pass))
-        {
-            pass_flag=1;
-            Login_Year=i;//stores logged in user's year
-            Login_Num=j;//stores logged in user's number
+    if(num_flag == 1){
+        if(!strcmp(cur_STUDENT->password, Curr_Pass)){
+            pass_flag = 1;
+           // Login_Year = i;//stores logged in user's year
+           // Login_Num = j;//stores logged in user's number
+            node_login_Year = cur_YEAR;
+            node_login_Num = cur_STUDENT;
         }
     }
     if(pass_flag==1)

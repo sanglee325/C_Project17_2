@@ -64,8 +64,10 @@ typedef struct HEAD
   int Year_Size;
   YEAR* ST_YEAR;
 }TREE_HEAD;
-int Login_Year;
-int Login_Num;
+int Login_Year;//used in array
+int Login_Num;//used in array
+YEAR *node_login_Year;
+STUDENT *node_login_Num;
 int Year_Count=8;
 int Student_Count;
 int Assign_Count;
