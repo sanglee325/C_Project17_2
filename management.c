@@ -3,13 +3,14 @@
 int main(){
     int exit=0;
     int login_flag=0;
-    int temppw_flag = 0;
+    int temppw_flag = 0, login_menu_exit = 0;
     
     Create_Struct();
    
     initscr();
 
     while(!exit){ 
+        login_menu_exit = 0;
         clear();
         
         switch(Account_Manage()){
@@ -26,44 +27,49 @@ int main(){
 
                 login_flag = login();
                 if(login_flag == 1){
-                    clear();
-                    switch(menu()){
-                        case MENU_ASSIGN :
-                            break;
-                        
-                        case MENU_CGPA :
-                            switch(cgpa_menu()){
-                                case CGPA_ADD : 
-                                    break;
-                                
-                                case CGPA_VIEW : 
-                                    break;
-                                
-                                case CGPA_QUIT : 
-                                    break;
-                                
-                                default : 
-                                    clear();
-                                    printw("Wrong Key\n");
-                                    printw("Press any key to return\n");
-                                    getch();
+                    while(!login_menu_exit){
+                        clear();
+                        switch(menu()){
+                            case MENU_ASSIGN :
+                                break;
+                            
+                            case MENU_CGPA :
+                                switch(cgpa_menu()){
+                                    case CGPA_ADD : 
+                                        break;
                                     
-                            }
-                            break;                            
-    
-                        case MENU_CHANGE :
-                            break;
+                                    case CGPA_VIEW : 
+                                        break;
+                                    
+                                    case CGPA_QUIT : 
+                                        break;
+                                
+                                    default : 
+                                        clear();
+                                        printw("Wrong Key\n");
+                                        printw("Press any key to return\n");
+                                        getch();
+                                        break;
+                                    
+                                }
+                                break;                            
+
+                            case MENU_CHANGE :
+                                Change_Password();
+                                break;
                         
-                        case MENU_LOGOUT :
-                            break;
-                        
-                        default :
-                            clear();
-                            printw("Wrong Key\n");
-                            printw("Press any key to return\n");
-                            getch();
-                            break;
-                    } 
+                            case MENU_LOGOUT :
+                                login_menu_exit = 1;
+                                break;
+                            
+                            default :
+                                clear();
+                                printw("Wrong Key\n");
+                                printw("Press any key to return\n");
+                                getch();
+                                break;
+                        }
+                    }
                 }
                 else{
                     clear();
@@ -106,8 +112,7 @@ int main(){
     system("clear");
     return 0;
 }
-void Save_Data()
-{
+void Save_Data(){
     int i,j,k;
     int current_year;
     int current_num;
@@ -129,11 +134,18 @@ void Save_Data()
     
     for(i = 0; i < TOP->Year_Size; i++){
         fprintf(fpoint, "%s %d\n", cur_YEAR->year, cur_YEAR->Num_Size);
-
-        if(i == 0){
+/*
+       if(i == 0){
             head_STUDENT = head_YEAR->ST_NUM;
             cur_STUDENT = head_STUDENT;
         }
+        else{
+            cur_STUDENT = cur_YEAR->ST_NUM;
+        }
+*/        
+        head_STUDENT = cur_YEAR->ST_NUM;
+        cur_STUDENT = head_STUDENT;
+
         for(j = 0; j < cur_YEAR->Num_Size; j++){
             fprintf(fpoint, "%4s%4s\n", cur_YEAR->year, cur_STUDENT->number);
             fprintf(fpoint, "%s\n", cur_STUDENT->password);
@@ -170,7 +182,7 @@ void Create_Struct()
     int current_num;
     int current_assign;
     int current_cgpa;
-    char* token;
+    char* token;//didn't use tokenizing
     char temp[350];
     char temp_year[5], temp_num[5], temp_snum[9];
     FILE* fpoint = fopen("data.txt", "r");
@@ -193,6 +205,9 @@ void Create_Struct()
             tail_YEAR->link = new_YEAR;
             tail_YEAR = new_YEAR;
         }
+
+        head_STUDENT = tail_YEAR->ST_NUM;
+        tail_STUDENT = tail_YEAR->ST_NUM;
         
         for(j = 0; j < new_YEAR->Num_Size; j++){
             new_STUDENT = malloc(sizeof(STUDENT));
@@ -202,7 +217,7 @@ void Create_Struct()
             
             if(head_STUDENT == NULL){
                 head_STUDENT = new_STUDENT;    
-                head_YEAR->ST_NUM = head_STUDENT;
+                tail_YEAR->ST_NUM = head_STUDENT;
                 tail_STUDENT = new_STUDENT;    
             }
             else{
@@ -461,17 +476,37 @@ void Delete_Account()
        */
 
 }
-void Change_Password()
-{
+void Change_Password(){
+    char new_pw[17], confirm_pw[17];
+    
+    cur_STUDENT = node_login_Num;
+    cur_YEAR = node_login_Year;
+    
+    clear();
+    printw("The new password must be less than 16 letters\n");
+    printw("Enter new password : ");
+    noecho();
+    scanw("%s", new_pw);
 
-    /*
-       To do...
-       */
+    printw("Confirm new password : ");
+    scanw("%s", confirm_pw);
+    echo();
+
+    if(!strcmp(new_pw, confirm_pw)){
+        strcpy(cur_STUDENT->password, confirm_pw);
+        printw("Password of Account <%s%s> is successfully changed.\n", cur_YEAR->year, cur_STUDENT->number);
+    } 
+    else{
+        clear();
+        printw("The confirm password is DIFFERENT\n");
+        printw("Press any key to return\n");
+        getch();
+    }
+    
 
 }
 
-int login()
-{
+int login(){
     int i,j;
     int year_flag=0;
     int num_flag=0;
@@ -495,7 +530,7 @@ int login()
         cur_YEAR = cur_YEAR->link;
     }
     if(year_flag == 1){
-        head_STUDENT = head_YEAR->ST_NUM;
+        head_STUDENT = cur_YEAR->ST_NUM;
         cur_STUDENT = head_STUDENT;
     
         for(j = 0; j < cur_YEAR->Num_Size;j++){
@@ -509,8 +544,6 @@ int login()
     if(num_flag == 1){
         if(!strcmp(cur_STUDENT->password, Curr_Pass)){
             pass_flag = 1;
-           // Login_Year = i;//stores logged in user's year
-           // Login_Num = j;//stores logged in user's number
             node_login_Year = cur_YEAR;
             node_login_Num = cur_STUDENT;
         }
@@ -556,7 +589,7 @@ int Temp_Password(){
     
 
     if(year_flag == 1){
-        head_STUDENT = head_YEAR->ST_NUM;
+        head_STUDENT = cur_YEAR->ST_NUM;
         cur_STUDENT = head_STUDENT;
     
         for(i = 0; i < cur_YEAR->Num_Size; i++){
