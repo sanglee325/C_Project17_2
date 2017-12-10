@@ -77,6 +77,7 @@ int main(){
                 break;
             
             case MENU_DEL :
+                Delete_Account();
                 break;
             
             case MENU_TEMP :
@@ -128,15 +129,8 @@ void Save_Data(){
     
     for(i = 0; i < TOP->Year_Size; i++){
         fprintf(fpoint, "%s %d\n", cur_YEAR->year, cur_YEAR->Num_Size);
-/*
-       if(i == 0){
-            head_STUDENT = head_YEAR->ST_NUM;
-            cur_STUDENT = head_STUDENT;
-        }
-        else{
-            cur_STUDENT = cur_YEAR->ST_NUM;
-        }
-*/        
+        
+        
         head_STUDENT = cur_YEAR->ST_NUM;
         cur_STUDENT = head_STUDENT;
 
@@ -307,10 +301,7 @@ void Print_Assign(int Asize)
     int k,D_day,thistime,thattime;
     time_t t;
     struct tm *today;
-    int i;
-    int j;
-    i=Login_Year;
-    j=Login_Num;
+
     t = time(NULL);
     today = localtime(&t);
     thistime = mktime(today);
@@ -566,11 +557,107 @@ void New_Account() {
         getch();
     }
 }
-void Delete_Account()
-{
-    /*
-       To do...
-       */
+void Delete_Account(){
+    int i = 0, year_flag = 0, num_flag = 0, pw_flag = 0, cgpa_flag = 0;
+    float temp;
+    char pw[17];
+    char year[5], num[5];
+
+    YEAR *year_temp;
+    STUDENT *student_temp;
+    ASSIGN *assign_temp;
+    CGPA *cgpa_temp;
+
+    clear();
+    echo();
+    printw("Student Number : ");
+    scanw("%s",Curr_Num);
+    
+    for(i = 0; i < 4; i++)
+        year[i] = Curr_Num[i];
+    for(i = 4; i < 8; i++)
+        num[i - 4] = Curr_Num[i];//copying st number
+
+    
+    head_YEAR = TOP->ST_YEAR;
+    cur_YEAR = head_YEAR;
+    
+    
+    for(i = 0; i < TOP->Year_Size; i++){
+        if(!strncmp(cur_YEAR->year, year, 4)){
+            year_flag = 1;
+            break;
+        }
+        year_temp = cur_YEAR;
+        cur_YEAR = cur_YEAR->link;
+    }
+    
+
+    if(year_flag == 1){
+        head_STUDENT = cur_YEAR->ST_NUM;
+        cur_STUDENT = head_STUDENT;
+        
+        for(i = 0; i < cur_YEAR->Num_Size; i++){
+            if(!strcmp(cur_STUDENT->number, num)){
+                num_flag = 1;
+                break;
+            }
+            student_temp = cur_STUDENT;
+            cur_STUDENT = cur_STUDENT->link;
+        }
+    }
+    
+    
+    if(num_flag == 1){
+        noecho();
+        printw("Password : ");
+        scanw("%s", pw);
+        echo();
+
+        if(!strcmp(pw, cur_STUDENT->password)){
+            pw_flag = 1;
+        }
+    }
+    if(pw_flag == 1){
+        printw("Input latest semester's GPA : ");
+        scanw("%f", &temp);
+        
+        head_CGPA = cur_STUDENT->Child_C;
+        cur_CGPA = head_CGPA;
+        
+        for(i = 0; i < cur_STUDENT->CGPA_Size - 1; i++)
+            cur_CGPA = cur_CGPA->link;
+
+        if(cur_CGPA->score == temp) cgpa_flag = 1;
+    }
+
+    if(cgpa_flag == 1){
+        cur_YEAR->Num_Size--;
+        
+        cur_ASSIGN = cur_STUDENT->Child_A;
+        cur_CGPA = cur_STUDENT->Child_C;
+        for(i = 0; i < cur_STUDENT->Assign_Size; i++){
+            assign_temp = cur_ASSIGN->link;
+            free(cur_ASSIGN);
+            cur_ASSIGN = assign_temp;
+        }
+        for(i = 0; i < cur_STUDENT->CGPA_Size; i++){
+            cgpa_temp = cur_CGPA->link;
+            free(cur_CGPA);
+            cur_CGPA = cgpa_temp;
+        }
+
+       student_temp->link = cur_STUDENT->link;
+       free(cur_STUDENT);
+       printw("Account <%s> Successfully Deleted\n", Curr_Num);
+       getch();
+    }
+    else{
+        printw("Wrong Information\n");
+        getch();
+        return;
+    }
+
 
 }
 void Change_Password(){
