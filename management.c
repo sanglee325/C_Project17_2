@@ -31,27 +31,11 @@ int main(){
                         clear();
                         switch(menu()){
                             case MENU_ASSIGN :
+                                Search_Assign();
                                 break;
                             
                             case MENU_CGPA :
-                                switch(cgpa_menu()){
-                                    case CGPA_ADD : 
-                                        break;
-                                    
-                                    case CGPA_VIEW : 
-                                        break;
-                                    
-                                    case CGPA_QUIT : 
-                                        break;
-                                
-                                    default : 
-                                        clear();
-                                        printw("Wrong Key\n");
-                                        printw("Press any key to return\n");
-                                        getch();
-                                        break;
-                                    
-                                }
+                                Search_CGPA();
                                 break;                            
 
                             case MENU_CHANGE :
@@ -108,7 +92,7 @@ int main(){
         }
     }
     endwin();
-//    Save_Data();
+    Save_Data();
     system("clear");
     return 0;
 }
@@ -119,7 +103,7 @@ void Save_Data(){
     int current_assign;
     int current_cgpa;
     FILE* fpoint;
-    fpoint=fopen("data.txt","w");
+    fpoint=fopen("check_data.txt","w");
 
 
     YEAR *head_YEAR = NULL, *cur_YEAR = NULL;
@@ -174,8 +158,7 @@ void Save_Data(){
     fclose(fpoint);
 
 }
-void Create_Struct()
-{
+void Create_Struct(){
     int i,j,k;
     int exit = 0, flag_exit;
     int current_year;
@@ -287,11 +270,16 @@ void Search_Assign()
 {
     int Asize;
     char input;
+    
     clear();
     printw("<Assignment Management for %s>\n",Curr_Num);
-    Asize = TOP->ST_YEAR[Login_Year].ST_NUM[Login_Num].Assign_Size;
+    
+    Asize = node_login_Num->Assign_Size;
+    
     Sort_Assign();
     Print_Assign(Asize);
+    
+    
     printw("1. New Assignment\n2. Delete Assignment\n3. Return to main menu\n");
     noecho();
     input=wgetch(stdscr);
@@ -323,18 +311,15 @@ void Print_Assign(int Asize)
 
 }
 
-char cgpa_menu()
-{
+char cgpa_menu(){
     printw("1. Add new GPA or Change existing GPA\n");
     printw("2. View all\n");
     printw("3. Exit\n");
     return wgetch(stdscr);
 }
-void Search_CGPA() 
-{
+void Search_CGPA() {
     int exit;
-    Curr_year_index=Login_Year;
-    Curr_num_index=Login_Num;
+    
     while(!exit)
     {
         clear();
@@ -343,28 +328,35 @@ void Search_CGPA()
             case CGPA_ADD: Add_GPA(); break;
             case CGPA_VIEW: Print_CGPA(); break;
             case CGPA_QUIT: exit = 1; break;
-            default: break;
+            default: 
+                clear();
+                printw("Wrong Key\n");
+                printw("Press any key to return\n");
+                getch();
+                break;
         }
     }
     exit = 0;
 }
-void Add_GPA()
-{
-    char semester;
+void Add_GPA(){
+    int semester;//changed to semster
     float gpa;
     int gpa_size;
+    int i = 0;
+
     clear();
     echo();
     printw("Input the semester of GPA : ");
-    scanw("%c", &semester);
+    scanw("%d", &semester);
 
-    gpa_size = TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].CGPA_Size;  
+    cur_STUDENT = node_login_Num;
+    gpa_size = cur_STUDENT->CGPA_Size;  
 
-    if(semester - '0' > (gpa_size + 1) || semester - '0' < 1) {
+    if(semester > (gpa_size + 1) || semester < 1) {
         printw("You entered wrong number!\n");
         getch();
         return ;
-    } 
+    } //if semester is smaller than 1 or larger than next semster, print error
     printw("Input the GPA : ");
     scanw("%f", &gpa);
 
@@ -374,26 +366,43 @@ void Add_GPA()
         return ;
     }
 
-    if(semester - '0' <= gpa_size) {
+    if(semester <= gpa_size) {
         Cor_GPA(semester, gpa);
         return ;
-    }
+    }//edit the semster which are already saved
 
-    TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].CGPA_Size++;
+    cur_STUDENT->CGPA_Size++;
     gpa_size++;
 
-    TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C = (CGPA*)realloc(TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C,gpa_size * sizeof(CGPA));
+    head_CGPA = cur_STUDENT->Child_C;
+    cur_CGPA = head_CGPA;
 
-    TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C[gpa_size - 1].semester = semester - '0';
-    TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C[gpa_size - 1].score = gpa; 
+    while(cur_CGPA->link != NULL){
+        cur_CGPA = cur_CGPA->link;
+    }
+    
+    new_CGPA = malloc(sizeof(CGPA));
+    new_CGPA->semester = semester;
+    new_CGPA->score = gpa;
+    cur_CGPA->link = new_CGPA;
+    
 
     return ;
 
 }
-void Cor_GPA(char semester, float gpa) 
-{
+void Cor_GPA(int semester, float gpa) {
     int i;
-    TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C[semester - '0' - 1].score = gpa;
+
+    cur_STUDENT = node_login_Num;
+    cur_CGPA = cur_STUDENT->Child_C;
+
+    for(i = 0;  i < cur_STUDENT->CGPA_Size; i++){
+        if(cur_CGPA->semester == semester){
+            cur_CGPA->score = gpa;
+            break;
+        }
+        else cur_CGPA = cur_CGPA->link;
+    }
     printw("GPA is changed successfully!\n");
     getch();
     return ;
@@ -405,17 +414,23 @@ void Print_CGPA() //Additional
     int tmpSemester;
     float tmpGPA;
     float sum = 0;
+
+    cur_STUDENT = node_login_Num;
+    cur_CGPA = cur_STUDENT->Child_C;
+
     clear();
     printw("<CGPA Management for %s>\n", Curr_Num);
     printw("------------------------------\n");
     printw("  Semester  |  GPA  |  CGPA  |  \n");
-    for(i = 0 ; i < TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].CGPA_Size ; i++) 
-    {
-        /*
-           To do...
-           */
+    for(i = 0 ; i < cur_STUDENT->CGPA_Size ; i++) {
+        tmpSemester = cur_CGPA->semester;
+        tmpGPA = cur_CGPA->score;
+        sum += tmpGPA;
+
         printw("------------------------------\n");
         printw("     %d      |  %.2f |  %.2f  |\n", tmpSemester, tmpGPA, sum/(i + 1));
+
+        cur_CGPA = cur_CGPA->link;
     }
     printw("------------------------------\n\n");
     printw("<CGPA Management by Graph for %s>\n", Curr_Num);
@@ -494,7 +509,8 @@ void Change_Password(){
 
     if(!strcmp(new_pw, confirm_pw)){
         strcpy(cur_STUDENT->password, confirm_pw);
-        printw("Password of Account <%s%s> is successfully changed.\n", cur_YEAR->year, cur_STUDENT->number);
+        printw("Password of Account <%s> is successfully changed.\n", Curr_Num);
+        getch();
     } 
     else{
         clear();
