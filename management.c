@@ -1,10 +1,19 @@
 #include "management.h"
 
+// fmt must be string format("")
+// Usage : DEBUG("message : %d", 123);
+#define DEBUG(fmt, ...) fprintf(fdebug, "[%d:%s] " fmt, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+
+FILE *fdebug;
+
 int main(){
     int exit=0;
     int login_flag=0;
     int temppw_flag = 0, login_menu_exit = 0;
     
+    // TODO: Debug
+    fdebug = fopen("debug.log", "w");
+
     Create_Struct();
    
     initscr();
@@ -64,6 +73,7 @@ int main(){
                 break;
             
             case MENU_NEW : 
+                New_Account();
                 break;
             
             case MENU_DEL :
@@ -477,12 +487,84 @@ void Add_CGPA()
        */  
 
 }
-void New_Account()
-{
-    /*
-       To do...
-       */
+void New_Account() {
+    int i;
+    char pw[17], confirm_pw[17];
+    char year[5], num[5];
 
+    clear();
+    printw("New Account Number : ");
+    getstr(New_Num);
+   
+    for(i = 0; i < 4; i++)
+        year[i] = New_Num[i];
+    for(i = 4; i < 8; i++)
+        num[i - 4] = New_Num[i];//copying st number
+    year[4] = 0;
+    num[4] = 0;
+
+    noecho();
+    printw("The password must be less than 16 letters\n");
+    printw("Password : ");
+    getstr(pw);
+
+    printw("Confirm new password : ");
+    getstr(confirm_pw);
+    echo();
+    
+    if(!strcmp(pw, confirm_pw)){
+        head_YEAR = TOP->ST_YEAR;
+        cur_YEAR = head_YEAR;
+        tail_YEAR = cur_YEAR;
+
+        new_STUDENT = malloc(sizeof(STUDENT));
+        strncpy(new_STUDENT->number, num, 5);
+        strncpy(new_STUDENT->password, confirm_pw, 16);
+        new_STUDENT->Assign_Size = 0;
+        new_STUDENT->CGPA_Size = 0;
+        
+        for(i = 0; i < TOP->Year_Size; i++){
+            if(!strcmp(cur_YEAR->year, year)) break;
+            cur_YEAR = cur_YEAR->link;
+        }
+        
+
+        if(cur_YEAR == NULL){
+            cur_YEAR = head_YEAR;
+            while(cur_YEAR->link != NULL){
+                cur_YEAR = cur_YEAR->link;
+            }
+            tail_YEAR = cur_YEAR;
+
+            TOP->Year_Size++;
+            new_YEAR = malloc(sizeof(YEAR));
+            strncpy(new_YEAR->year, year, 5);
+            new_YEAR->Num_Size = 1;
+            new_YEAR->ST_NUM = new_STUDENT;
+            tail_YEAR->link = new_YEAR;
+            tail_YEAR = new_YEAR;
+        }//case of new year added
+
+
+        else{
+            head_STUDENT = cur_YEAR->ST_NUM;
+            cur_STUDENT = head_STUDENT;
+            cur_YEAR->Num_Size++;
+
+            while(cur_STUDENT->link != NULL){
+                cur_STUDENT = cur_STUDENT->link;
+            }
+            cur_STUDENT->link = new_STUDENT;
+        }
+        printw("Account <%s> is successfully created.\n", New_Num);
+        getch();
+    } 
+    else{
+        clear();
+        printw("The confirm password is DIFFERENT\n");
+        printw("Press any key to return\n");
+        getch();
+    }
 }
 void Delete_Account()
 {
