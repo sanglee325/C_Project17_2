@@ -117,11 +117,6 @@ void Save_Data(){
     fpoint=fopen("check_data.txt","w");
 
 
-    YEAR *head_YEAR = NULL, *cur_YEAR = NULL;
-    STUDENT *head_STUDENT = NULL, *cur_STUDENT = NULL;
-    CGPA *head_CGPA = NULL, *cur_CGPA = NULL;
-    ASSIGN *head_ASSIGN = NULL, *cur_ASSIGN = NULL;
-
     fprintf(fpoint, "%d\n", TOP->Year_Size);
 
     head_YEAR = TOP->ST_YEAR;
@@ -292,6 +287,12 @@ void Search_Assign()
         case '1': Add_Assign(); break;
         case '2': Delete_Assign(); break;
         case '3': return; break;
+        default: 
+            clear();
+            printw("Wrong Key\n");
+            printw("Press any key to return\n");
+            getch();
+            break;
     }
     clear();
 }
@@ -439,35 +440,98 @@ void Print_CGPA() //Additional
     Print_CGPA_Graph();
     getch();
 }
-void Print_CGPA_Graph() 
-{
+void Print_CGPA_Graph() {
     /*
        To do...(Additional)
        */
 }
-void Sort_Assign()
-{
-
-    /*
-
-       To do...
-
-*/
+void Sort_Assign(){
+    
 }
-void Add_Assign()
-{
-    //Login_Num,Login_Year
-    /*
-       To do...
+void Add_Assign(){
+    int gpa_size;
+    int i = 0;
 
-*/
+    clear();
+    echo();
+
+    new_ASSIGN = malloc(sizeof(ASSIGN));
+    printw("Enter the name of new assignment : \n");
+    scanw("%s", new_ASSIGN->name);
+
+    printw("Enter rhe description of new assignment : \n");
+    scanw("%s", new_ASSIGN->describe);
+
+    printw("Enter the professor of new assignment : \n");
+    scanw("%s", new_ASSIGN->professor);
+
+    printw("Enter the due month of new assignment : ");
+    scanw("%d", &(new_ASSIGN->date[0]));
+    printw("Enter the due date of new assignment : ");
+    scanw("%d", &(new_ASSIGN->date[1]));
+    
+        
+    cur_STUDENT = node_login_Num;
+    cur_ASSIGN = cur_STUDENT->Child_A;
+
+    while(cur_ASSIGN->link != NULL){
+        cur_ASSIGN = cur_ASSIGN->link;
+    }
+    
+    cur_STUDENT->Assign_Size++;
+
+    cur_ASSIGN->link = new_ASSIGN;
+
+    return ;
 }
-void Delete_Assign()
-{
-    /*
-       To do...
+void Delete_Assign() {
+    ASSIGN *prev_assign = NULL;
+    
+    int i = 0, assign_flag = 0; 
+    char target_assign[100];
 
-*/
+    clear();
+    echo();
+    printw("Enter the assignment to delete : ");
+    scanw("%100[^\n]", target_assign);
+    
+    cur_STUDENT = node_login_Num; 
+    head_ASSIGN = cur_STUDENT->Child_A;
+    cur_ASSIGN = head_ASSIGN;
+
+    prev_assign = cur_ASSIGN;
+
+    for(i = 0; i < cur_STUDENT->Assign_Size; i++){
+        if(!strcmp(cur_ASSIGN->name, target_assign)){
+            assign_flag = 1;
+            break;
+        }
+        prev_assign = cur_ASSIGN;
+        cur_ASSIGN = cur_ASSIGN->link;
+    }
+   //define that there is no same name of assignment 
+
+    if(assign_flag == 1) {
+        cur_STUDENT->Assign_Size--;
+        if(i == 0){
+            cur_STUDENT->Child_A = cur_ASSIGN->link;
+            free(cur_ASSIGN);
+            cur_ASSIGN = head_ASSIGN;
+        }
+        else{
+            prev_assign->link = cur_ASSIGN->link;
+            free(cur_ASSIGN);
+            cur_ASSIGN = prev_assign;
+        }
+
+        printw("Assignment <%s> Successfully Deleted\n", target_assign);
+        getch();
+    }
+    else{
+        printw("Wrong Information\n");
+        getch();
+        return;
+    }
 }
 void Add_CGPA()
 {
@@ -563,10 +627,10 @@ void Delete_Account(){
     char pw[17];
     char year[5], num[5];
 
-    YEAR *year_temp;
-    STUDENT *student_temp;
-    ASSIGN *assign_temp;
-    CGPA *cgpa_temp;
+    YEAR *prev_year;
+    STUDENT *prev_student;
+    ASSIGN *prev_assign;
+    CGPA *prev_cgpa;
 
     clear();
     echo();
@@ -581,6 +645,7 @@ void Delete_Account(){
     
     head_YEAR = TOP->ST_YEAR;
     cur_YEAR = head_YEAR;
+    prev_year = cur_YEAR;
     
     
     for(i = 0; i < TOP->Year_Size; i++){
@@ -588,7 +653,7 @@ void Delete_Account(){
             year_flag = 1;
             break;
         }
-        year_temp = cur_YEAR;
+        prev_year = cur_YEAR;
         cur_YEAR = cur_YEAR->link;
     }
     
@@ -596,13 +661,14 @@ void Delete_Account(){
     if(year_flag == 1){
         head_STUDENT = cur_YEAR->ST_NUM;
         cur_STUDENT = head_STUDENT;
+        prev_student = cur_STUDENT;
         
         for(i = 0; i < cur_YEAR->Num_Size; i++){
             if(!strcmp(cur_STUDENT->number, num)){
                 num_flag = 1;
                 break;
             }
-            student_temp = cur_STUDENT;
+            prev_student = cur_STUDENT;
             cur_STUDENT = cur_STUDENT->link;
         }
     }
@@ -637,20 +703,29 @@ void Delete_Account(){
         cur_ASSIGN = cur_STUDENT->Child_A;
         cur_CGPA = cur_STUDENT->Child_C;
         for(i = 0; i < cur_STUDENT->Assign_Size; i++){
-            assign_temp = cur_ASSIGN->link;
+            prev_assign = cur_ASSIGN->link;
             free(cur_ASSIGN);
-            cur_ASSIGN = assign_temp;
+            cur_ASSIGN = prev_assign;
         }
         for(i = 0; i < cur_STUDENT->CGPA_Size; i++){
-            cgpa_temp = cur_CGPA->link;
+            prev_cgpa = cur_CGPA->link;
             free(cur_CGPA);
-            cur_CGPA = cgpa_temp;
+            cur_CGPA = prev_cgpa;
         }
-
-       student_temp->link = cur_STUDENT->link;
-       free(cur_STUDENT);
-       printw("Account <%s> Successfully Deleted\n", Curr_Num);
-       getch();
+    
+        if(prev_student == cur_STUDENT){
+            cur_YEAR->ST_NUM = cur_STUDENT->link;
+            free(cur_STUDENT);
+            cur_STUDENT = cur_YEAR->ST_NUM;
+        }
+        else{
+            prev_student->link = cur_STUDENT->link;
+            free(cur_STUDENT);
+            cur_STUDENT = prev_student;
+        }
+        
+        printw("Account <%s> Successfully Deleted\n", Curr_Num);
+        getch();
     }
     else{
         printw("Wrong Information\n");
