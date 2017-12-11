@@ -303,13 +303,25 @@ void Print_Assign(int Asize)
     time_t t;
     struct tm *today;
 
+    int i = 0;
+
     t = time(NULL);
     today = localtime(&t);
     thistime = mktime(today);
-    /*
-       To do...
-       */
 
+    cur_STUDENT = node_login_Num;
+    head_ASSIGN = cur_STUDENT->Child_A;
+    cur_ASSIGN = head_ASSIGN;
+
+    for(i = 1; i <= cur_STUDENT->Assign_Size; i++){
+        printw("<%d> Name\t: %s\n", i, cur_ASSIGN->name);
+        printw("    Describe\t: %s\n", cur_ASSIGN->describe);
+        printw("    Professor\t: %s\n", cur_ASSIGN->professor);
+        printw("    Due\t: %d/%2d\n", cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
+        printw("    D-day\t: \n");
+        
+        cur_ASSIGN = cur_ASSIGN->link;
+    }
 
 }
 
@@ -446,7 +458,66 @@ void Print_CGPA_Graph() {
        */
 }
 void Sort_Assign(){
-    
+    typedef struct {
+        int date[2];
+        ASSIGN *prev, *current;
+    } date_address;
+
+    date_address *info, *temp;
+    int i = 0, j = 0, Asize = 0;
+
+    head_STUDENT = node_login_Num;
+    cur_STUDENT = head_STUDENT;
+    cur_ASSIGN = cur_STUDENT->Child_A;
+
+    Asize = cur_STUDENT->Assign_Size;
+
+    info = malloc(sizeof(date_address) * cur_STUDENT->Assign_Size);
+    for(i = 0; i < Asize; i++){
+        if(i == 0){
+            info[i].prev = NULL;
+            info[i].current = cur_ASSIGN;
+            info[i].date[0] = cur_ASSIGN->date[0];
+            info[i].date[1] = cur_ASSIGN->date[1];
+        }
+        else {
+            info[i].date[0] = cur_ASSIGN->date[0];
+            info[i].date[1] = cur_ASSIGN->date[1];
+            info[i].current = cur_ASSIGN;
+        }
+
+        if(i != Asize - 1){
+            info[i + 1].prev = cur_ASSIGN;
+        }
+        cur_ASSIGN = cur_ASSIGN->link;
+    }
+
+    for(i = 1; i < Asize; i++){
+        temp = &info[i];
+        for(j = i - 1; j >= 0; j--){
+            if(temp->date[0] < info[j].date[0]){
+                temp->current->link = info[j].current->link;
+                temp->prev->link = info[j].current;
+                info[j].current->link = temp->current;
+                break;
+            }
+            else if(temp->date[0] == info[j].date[0]){
+                if(temp->date[1] < info[j].date[1]){
+                    temp->current->link = info[j].current->link;
+                    temp->prev->link = info[j].current;
+                    info[j].current->link = temp->current;
+                    break;
+                }
+            }
+            else{
+                info[j+1] = *temp;
+                break;
+            }
+        }
+    }
+
+    free(info);
+
 }
 void Add_Assign(){
     int gpa_size;
