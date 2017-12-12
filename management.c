@@ -274,10 +274,14 @@ void Search_Assign()
     printw("<Assignment Management for %s>\n",Curr_Num);
     
     Asize = node_login_Num->Assign_Size;
-    
-    Sort_Assign();
-    Print_Assign(Asize);
-    
+   
+    if(Asize != 0){
+        Sort_Assign();
+        Print_Assign(Asize);
+    }
+    else{
+        printw("Congratulations!! There is no assignment left!\n\n");
+    }
     
     printw("1. New Assignment\n2. Delete Assignment\n3. Return to main menu\n");
     noecho();
@@ -300,7 +304,8 @@ void Search_Assign()
 
 void Print_Assign(int Asize)
 {
-    int k,D_day,thistime,thattime;
+    int k,D_day = 0,thistime,thattime;
+    int tday_mon, tday_date, D_mon;
     time_t t;
     struct tm *today;
 
@@ -308,7 +313,10 @@ void Print_Assign(int Asize)
 
     t = time(NULL);
     today = localtime(&t);
-    thistime = mktime(today);
+ //   thistime = mktime(today);
+    tday_mon = today->tm_mon + 1;
+    tday_date = today->tm_mday;
+    D_mon = cur_ASSIGN->date[0];//might not be used
 
     cur_STUDENT = node_login_Num;
     cur_ASSIGN = head_ASSIGN = cur_STUDENT->Child_A;
@@ -318,7 +326,34 @@ void Print_Assign(int Asize)
         printw("    Describe\t: %s\n", cur_ASSIGN->describe);
         printw("    Professor\t: %s\n", cur_ASSIGN->professor);
         printw("    Due\t: %d/%2d\n", cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
-        printw("    D-day\t: \n");
+        
+        if(cur_ASSIGN->date[0] == tday_mon && cur_ASSIGN->date[1] == tday_date){
+            printw("    D-day\t: TODAY!!!\n");
+        } 
+        else if(cur_ASSIGN->date[0] < tday_mon){
+            printw("    D-day\t: OVERR!!!\n");
+        } 
+        else if(cur_ASSIGN->date[0] == tday_mon && cur_ASSIGN->date[1] < tday_date){
+            printw("    D-day\t: OVERR!!!\n");
+        } 
+        else{
+            if(cur_ASSIGN->date[0] > tday_mon){
+                while(1){
+                    if(D_mon == 1||D_mon == 3||D_mon == 5||D_mon == 7||D_mon == 8||D_mon == 10 ||D_mon == 12)
+                        D_day += 31;
+                    else if(D_mon == 4||D_mon == 6||D_mon == 9||D_mon == 11)
+                        D_day += 30;
+                    else if(D_mon == 2)        
+                        D_day += 28;
+                    tday_mon++;
+                    if(cur_ASSIGN->date[0] == tday_mon) break;
+                }
+            }
+            D_day -= tday_date;
+            D_day += cur_ASSIGN->date[1];
+            D_day *= -1;
+            printw("    D-day\t: %d\n", D_day);
+        }
         
         cur_ASSIGN = cur_ASSIGN->link;
     }
@@ -529,14 +564,28 @@ void Sort_Assign(){
 }
 void Add_Assign(){
     int gpa_size;
-    int i = 0;
+    int i = 0, name_flag = 0;
 
     clear();
     echo();
 
+
     new_ASSIGN = malloc(sizeof(ASSIGN));
-    printw("Enter the name of new assignment : \n");
-    scanw("%s", new_ASSIGN->name);
+    while(!name_flag){
+        cur_ASSIGN = node_login_Num->Child_A;
+        printw("Enter the name of new assignment : \n");
+        scanw("%s", new_ASSIGN->name);
+        
+        while(cur_ASSIGN != NULL){
+            if(strcmp(new_ASSIGN->name, cur_ASSIGN->name) != 0){
+                name_flag = 1;
+                break;
+            }
+            cur_ASSIGN = cur_ASSIGN->link;
+        }
+        if(name_flag == 0)
+            printw("There exists the same name of assignment.\nChoose different name.\n");
+    }
 
     printw("Enter rhe description of new assignment : \n");
     scanw("%s", new_ASSIGN->describe);
@@ -605,15 +654,6 @@ void Delete_Assign() {
         getch();
         return;
     }
-}
-void Add_CGPA()
-{
-    //Login_Num,Login_Year
-
-    /*
-       To do...
-       */  
-
 }
 void New_Account() {
     int i;
@@ -805,8 +845,6 @@ void Delete_Account(){
         getch();
         return;
     }
-
-
 }
 void Change_Password(){
     char new_pw[17], confirm_pw[17];
@@ -835,8 +873,6 @@ void Change_Password(){
         printw("Press any key to return\n");
         getch();
     }
-    
-
 }
 
 int login(){
@@ -958,6 +994,5 @@ int Temp_Password(){
         strcpy(cur_STUDENT->password, temppassword);
         return 1;
     }
-
     return 0;
 }
