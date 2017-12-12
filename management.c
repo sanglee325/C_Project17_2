@@ -282,6 +282,7 @@ void Search_Assign()
     printw("1. New Assignment\n2. Delete Assignment\n3. Return to main menu\n");
     noecho();
     input=wgetch(stdscr);
+    echo();
     switch(input)
     {
         case '1': Add_Assign(); break;
@@ -310,8 +311,7 @@ void Print_Assign(int Asize)
     thistime = mktime(today);
 
     cur_STUDENT = node_login_Num;
-    head_ASSIGN = cur_STUDENT->Child_A;
-    cur_ASSIGN = head_ASSIGN;
+    cur_ASSIGN = head_ASSIGN = cur_STUDENT->Child_A;
 
     for(i = 1; i <= cur_STUDENT->Assign_Size; i++){
         printw("<%d> Name\t: %s\n", i, cur_ASSIGN->name);
@@ -400,9 +400,7 @@ void Add_GPA(){
     new_CGPA->score = gpa;
     cur_CGPA->link = new_CGPA;
     
-
     return ;
-
 }
 void Cor_GPA(int semester, float gpa) {
     int i;
@@ -460,22 +458,22 @@ void Print_CGPA_Graph() {
 void Sort_Assign(){
     typedef struct {
         int date[2];
-        ASSIGN *prev, *current;
+        ASSIGN *current;
     } date_address;
 
-    date_address *info, *temp;
-    int i = 0, j = 0, Asize = 0;
+    date_address *info;
+    date_address temp;
+    int i = 0, j = 0, k = 0, tp, Asize = 0;
 
     head_STUDENT = node_login_Num;
     cur_STUDENT = head_STUDENT;
     cur_ASSIGN = cur_STUDENT->Child_A;
 
-    Asize = cur_STUDENT->Assign_Size;
+   // Asize = cur_STUDENT->Assign_Size;
 
     info = malloc(sizeof(date_address) * cur_STUDENT->Assign_Size);
-    for(i = 0; i < Asize; i++){
+    for(i = 0; i < cur_STUDENT->Assign_Size; i++){
         if(i == 0){
-            info[i].prev = NULL;
             info[i].current = cur_ASSIGN;
             info[i].date[0] = cur_ASSIGN->date[0];
             info[i].date[1] = cur_ASSIGN->date[1];
@@ -486,33 +484,43 @@ void Sort_Assign(){
             info[i].current = cur_ASSIGN;
         }
 
-        if(i != Asize - 1){
-            info[i + 1].prev = cur_ASSIGN;
-        }
         cur_ASSIGN = cur_ASSIGN->link;
     }
 
-    for(i = 1; i < Asize; i++){
-        temp = &info[i];
+    for(i = 1; i < cur_STUDENT->Assign_Size; i++){
+        temp = info[i];
+        k = i;
         for(j = i - 1; j >= 0; j--){
-            if(temp->date[0] < info[j].date[0]){
-                temp->current->link = info[j].current->link;
-                temp->prev->link = info[j].current;
-                info[j].current->link = temp->current;
-                break;
+            if(temp.date[0] < info[j].date[0]){
+                info[j + 1].date[0] = info[j].date[0];
+                info[j + 1].date[1] = info[j].date[1];
+                info[j + 1].current = info[j].current;
+                k = j;
             }
-            else if(temp->date[0] == info[j].date[0]){
-                if(temp->date[1] < info[j].date[1]){
-                    temp->current->link = info[j].current->link;
-                    temp->prev->link = info[j].current;
-                    info[j].current->link = temp->current;
-                    break;
-                }
+            else if(temp.date[0] == info[j].date[0]){
+                if(temp.date[1] < info[j].date[1]){
+                    info[j + 1].date[0] = info[j].date[0];
+                    info[j + 1].date[1] = info[j].date[1];
+                    info[j + 1].current = info[j].current;
+                    k = j;
+               }
             }
-            else{
-                info[j+1] = *temp;
-                break;
-            }
+        }
+        info[k] = temp;
+       for(tp = 0; tp < cur_STUDENT->Assign_Size; tp++){
+            printw("info[%d] : %d/%2d, Assignment : %s\n", tp, info[tp].date[0], info[tp].date[1], info[tp].current->name);
+        }
+    }
+
+    for(i = 0; i < cur_STUDENT->Assign_Size; i++){
+        if(i == 0){
+            cur_ASSIGN = cur_STUDENT->Child_A = info[i].current;
+        }
+        else{
+            cur_ASSIGN->link = info[i].current;
+            cur_ASSIGN = cur_ASSIGN->link;
+            if(i == Asize - 1)
+                cur_ASSIGN = NULL;
         }
     }
 
@@ -537,23 +545,17 @@ void Add_Assign(){
     scanw("%s", new_ASSIGN->professor);
 
     printw("Enter the due month of new assignment : ");
-    scanw("%d", &(new_ASSIGN->date[0]));
+    scanw("%d", &new_ASSIGN->date[0]);
     printw("Enter the due date of new assignment : ");
-    scanw("%d", &(new_ASSIGN->date[1]));
+    scanw("%d", &new_ASSIGN->date[1]);
     
         
     cur_STUDENT = node_login_Num;
-    cur_ASSIGN = cur_STUDENT->Child_A;
-
-    while(cur_ASSIGN->link != NULL){
-        cur_ASSIGN = cur_ASSIGN->link;
-    }
+    head_ASSIGN = cur_STUDENT->Child_A;
     
     cur_STUDENT->Assign_Size++;
-
-    cur_ASSIGN->link = new_ASSIGN;
-
-    return ;
+    new_ASSIGN->link = head_ASSIGN;
+    cur_STUDENT->Child_A = new_ASSIGN;
 }
 void Delete_Assign() {
     ASSIGN *prev_assign = NULL;
