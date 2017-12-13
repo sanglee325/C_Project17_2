@@ -2,17 +2,13 @@
 
 // fmt must be string format("")
 // Usage : DEBUG("message : %d", 123);
-#define DEBUG(fmt, ...) fprintf(fdebug, "[%d:%s] " fmt, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define DEBUG(fmt, ...) fprintf(stderr, "[%d:%s] " fmt, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 
-FILE *fdebug;
 
 int main(){
     int exit=0;
     int login_flag=0;
     int temppw_flag = 0, login_menu_exit = 0;
-    
-    // TODO: Debug
-    fdebug = fopen("debug.log", "w");
 
     Create_Struct();
    
@@ -114,6 +110,13 @@ void Save_Data(){
     int current_assign;
     int current_cgpa;
     FILE* fpoint;
+
+    YEAR *prev_year;
+    STUDENT *prev_student;
+    ASSIGN *prev_assign;
+    CGPA *prev_cgpa;
+
+
     fpoint=fopen("check_data.txt","w");
 
 
@@ -141,18 +144,28 @@ void Save_Data(){
             
             for(k = 0; k < cur_STUDENT->Assign_Size; k++){
                 fprintf(fpoint, "%s/%s/%s/%d %d\n", cur_ASSIGN->name, cur_ASSIGN->describe, cur_ASSIGN->professor, cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
-                cur_ASSIGN = cur_ASSIGN->link;    
+                prev_assign = cur_ASSIGN;
+                free(prev_assign); DEBUG("\n");
+                cur_ASSIGN = cur_ASSIGN->link;
             }
         
             for(k = 0; k < cur_STUDENT->CGPA_Size; k++){
                 fprintf(fpoint, "%d %.2f\n", cur_CGPA->semester, cur_CGPA->score);
+                prev_cgpa = cur_CGPA;
+                free(prev_cgpa); DEBUG("\n");
                 cur_CGPA = cur_CGPA->link;    
             }
+            prev_student = cur_STUDENT;
+            free(prev_student); DEBUG("\n");
             cur_STUDENT = cur_STUDENT->link;
         }
+        prev_year = cur_YEAR;
+        free(prev_year); DEBUG("\n");
         cur_YEAR = cur_YEAR->link;
         fprintf(fpoint, "\n");
     }
+
+    free(TOP); DEBUG("hi\n");
 
     fclose(fpoint);
 
@@ -302,8 +315,7 @@ void Search_Assign()
     clear();
 }
 
-void Print_Assign(int Asize)
-{
+void Print_Assign(int Asize) {
     int k,D_day = 0,thistime,thattime;
     int tday_mon, tday_date, D_mon;
     time_t t;
@@ -311,22 +323,22 @@ void Print_Assign(int Asize)
 
     int i = 0;
 
+    cur_STUDENT = node_login_Num;
+    cur_ASSIGN = head_ASSIGN = cur_STUDENT->Child_A;
+
     t = time(NULL);
     today = localtime(&t);
- //   thistime = mktime(today);
     tday_mon = today->tm_mon + 1;
     tday_date = today->tm_mday;
     D_mon = cur_ASSIGN->date[0];//might not be used
-
-    cur_STUDENT = node_login_Num;
-    cur_ASSIGN = head_ASSIGN = cur_STUDENT->Child_A;
 
     for(i = 1; i <= cur_STUDENT->Assign_Size; i++){
         printw("<%d> Name\t: %s\n", i, cur_ASSIGN->name);
         printw("    Describe\t: %s\n", cur_ASSIGN->describe);
         printw("    Professor\t: %s\n", cur_ASSIGN->professor);
-        printw("    Due\t: %d/%2d\n", cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
+        printw("    Due\t\t: %d/%2d\n", cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
         
+        D_day = 0;
         if(cur_ASSIGN->date[0] == tday_mon && cur_ASSIGN->date[1] == tday_date){
             printw("    D-day\t: TODAY!!!\n");
         } 
@@ -357,7 +369,6 @@ void Print_Assign(int Asize)
         
         cur_ASSIGN = cur_ASSIGN->link;
     }
-
 }
 
 char cgpa_menu(){
@@ -369,11 +380,10 @@ char cgpa_menu(){
 void Search_CGPA() {
     int exit;
     
-    while(!exit)
-    {
+    while(!exit) {
         clear();
-        switch(cgpa_menu())
-        {
+
+        switch(cgpa_menu()){
             case CGPA_ADD: Add_GPA(); break;
             case CGPA_VIEW: Print_CGPA(); break;
             case CGPA_QUIT: exit = 1; break;
@@ -504,7 +514,7 @@ void Sort_Assign(){
     cur_STUDENT = head_STUDENT;
     cur_ASSIGN = cur_STUDENT->Child_A;
 
-   // Asize = cur_STUDENT->Assign_Size;
+    Asize = cur_STUDENT->Assign_Size;
 
     info = malloc(sizeof(date_address) * cur_STUDENT->Assign_Size);
     for(i = 0; i < cur_STUDENT->Assign_Size; i++){
@@ -542,9 +552,6 @@ void Sort_Assign(){
             }
         }
         info[k] = temp;
-       for(tp = 0; tp < cur_STUDENT->Assign_Size; tp++){
-            printw("info[%d] : %d/%2d, Assignment : %s\n", tp, info[tp].date[0], info[tp].date[1], info[tp].current->name);
-        }
     }
 
     for(i = 0; i < cur_STUDENT->Assign_Size; i++){
@@ -568,7 +575,6 @@ void Add_Assign(){
 
     clear();
     echo();
-
 
     new_ASSIGN = malloc(sizeof(ASSIGN));
     while(!name_flag){
@@ -650,7 +656,7 @@ void Delete_Assign() {
         getch();
     }
     else{
-        printw("Wrong Information\n");
+        printw("Assignment <%s> does not exist\n");
         getch();
         return;
     }
@@ -671,6 +677,7 @@ void New_Account() {
     year[4] = 0;
     num[4] = 0;
 
+    
     noecho();
     printw("The password must be less than 16 letters\n");
     printw("Password : ");
