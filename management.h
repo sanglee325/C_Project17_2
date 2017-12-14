@@ -65,14 +65,8 @@ typedef struct HEAD
   YEAR* ST_YEAR; // add link
 }TREE_HEAD;
 
-int Login_Year;//used in array not used
-int Login_Num;//used in array not used
 YEAR *node_login_Year; // added to keep in track
 STUDENT *node_login_Num;//added to keep in track
-int Year_Count=8;
-int Student_Count;
-int Assign_Count;
-int CGPA_Count;
 TREE_HEAD* TOP;
 void Load_Data();
 void Save_Data();
@@ -95,6 +89,6 @@ void Sort_Assign();
 void Add_Assign();
 void Delete_Assign();
 int login();
-void Temp_Password();//changed to int for exclusion
+void Temp_Password();
 char Account_Manage();
 #endif

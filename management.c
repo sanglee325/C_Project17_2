@@ -13,133 +13,133 @@ int main(){
 
     YEAR *head_YEAR = NULL, *cur_YEAR = NULL, *prev_year = NULL;
     STUDENT *head_STUDENT = NULL, *cur_STUDENT = NULL, *prev_student = NULL; 
-    
+
     Create_Struct();
-   
+
     initscr();
 
     while(!exit){ 
         login_menu_exit = 0;
         clear();
-        
+
         switch(Account_Manage()){
             clear();
             year_flag = 0; num_flag = 0;
             case MENU_LOGIN :
-                clear();
-                printw("Student Number : ");
-                scanw("%s", Curr_Num);
-                for(i = 0; i < 4; i++)
-                    year[i] = Curr_Num[i];
-                for(i = 4; i < 8; i++)
-                    num[i - 4] = Curr_Num[i];//copying st number
+            clear();
+            printw("Student Number : ");
+            scanw("%s", Curr_Num);
+            for(i = 0; i < 4; i++)
+                year[i] = Curr_Num[i];
+            for(i = 4; i < 8; i++)
+                num[i - 4] = Curr_Num[i];//copying st number
 
 
-                cur_YEAR = head_YEAR = TOP->ST_YEAR;
+            cur_YEAR = head_YEAR = TOP->ST_YEAR;
+            prev_year = cur_YEAR;
+
+            for(i = 0; i < TOP->Year_Size; i++){
+                if(!strncmp(cur_YEAR->year, year, 4)){
+                    year_flag = 1;
+                    break;
+                }
                 prev_year = cur_YEAR;
+                cur_YEAR = cur_YEAR->link;
+            }
 
-                for(i = 0; i < TOP->Year_Size; i++){
-                    if(!strncmp(cur_YEAR->year, year, 4)){
-                        year_flag = 1;
+
+            if(year_flag == 1){
+                head_STUDENT = cur_YEAR->ST_NUM;
+                cur_STUDENT = head_STUDENT;
+                prev_student = cur_STUDENT;
+
+                for(i = 0; i < cur_YEAR->Num_Size; i++){
+                    if(!strncmp(cur_STUDENT->number, num, 4)){
+                        num_flag = 1;
                         break;
                     }
-                    prev_year = cur_YEAR;
-                    cur_YEAR = cur_YEAR->link;
-                }
-
-
-                if(year_flag == 1){
-                    head_STUDENT = cur_YEAR->ST_NUM;
-                    cur_STUDENT = head_STUDENT;
                     prev_student = cur_STUDENT;
-
-                    for(i = 0; i < cur_YEAR->Num_Size; i++){
-                        if(!strncmp(cur_STUDENT->number, num, 4)){
-                            num_flag = 1;
-                            break;
-                        }
-                        prev_student = cur_STUDENT;
-                        cur_STUDENT = cur_STUDENT->link;
-                    }
+                    cur_STUDENT = cur_STUDENT->link;
                 }
+            }
 
-                if(num_flag == 1) {
-                    printw("Password : ");
-                    noecho();
-                    scanw("%s", Curr_Pass);
-                    echo();
+            if(num_flag == 1) {
+                printw("Password : ");
+                noecho();
+                scanw("%s", Curr_Pass);
+                echo();
 
-                    login_flag = login();
-                    if(login_flag == 1){
-                        while(!login_menu_exit){
-                            clear();
-                            switch(menu()){
-                                case MENU_ASSIGN :
-                                    Search_Assign();
-                                    break;
+                login_flag = login();
+                if(login_flag == 1){
+                    while(!login_menu_exit){
+                        clear();
+                        switch(menu()){
+                            case MENU_ASSIGN :
+                                Search_Assign();
+                                break;
 
-                                case MENU_CGPA :
-                                    Search_CGPA();
-                                    break;                            
+                            case MENU_CGPA :
+                                Search_CGPA();
+                                break;                            
 
-                                case MENU_CHANGE :
-                                    Change_Password();
-                                    break;
+                            case MENU_CHANGE :
+                                Change_Password();
+                                break;
 
-                                case MENU_LOGOUT :
-                                    login_menu_exit = 1;
-                                    break;
+                            case MENU_LOGOUT :
+                                login_menu_exit = 1;
+                                break;
 
-                                default :
-                                    clear();
-                                    printw("Wrong Key\n");
-                                    printw("Press any key to return\n");
-                                    getch();
-                                    break;
-                            }
+                            default :
+                                clear();
+                                printw("Wrong Key\n");
+                                printw("Press any key to return\n");
+                                getch();
+                                break;
                         }
                     }
                 }
-                if(login_flag == 0 && num_flag == 1){
-                    printw("\nThe password of account <%s> is wrong.\n", Curr_Num);
-                    printw("Press any key to return\n");
-                    getch();
-                }
-                else if(login_flag == 0 && num_flag == 0){
-                    printw("\nThe account <%s> does not exist.\n", Curr_Num);
-                    printw("Press any key to return\n");
-                    getch();
-                }
-                else if(login_flag == 0 && year_flag == 0){
-                    printw("\nThe account <%s> does not exist.\n", Curr_Num);
-                    printw("Press any key to return\n");
-                    getch();
-                }
-                break;
-            
-            case MENU_NEW : 
-                New_Account();
-                break;
-            
-            case MENU_DEL :
-                Delete_Account();
-                break;
-            
-            case MENU_TEMP :
-                Temp_Password();
-                getch();
-                break;
-            
-            case MENU_QUIT :
-                exit = 1;
-                break;
-            
-            default :
-                clear();
-                printw("Wrong Key\n");
+            }
+            if(login_flag == 0 && num_flag == 1){
+                printw("\nThe password of account <%s> is wrong.\n", Curr_Num);
                 printw("Press any key to return\n");
                 getch();
-                break;
+            }
+            else if(login_flag == 0 && num_flag == 0){
+                printw("\nThe account <%s> does not exist.\n", Curr_Num);
+                printw("Press any key to return\n");
+                getch();
+            }
+            else if(login_flag == 0 && year_flag == 0){
+                printw("\nThe account <%s> does not exist.\n", Curr_Num);
+                printw("Press any key to return\n");
+                getch();
+            }
+            break;
+
+            case MENU_NEW : 
+            New_Account();
+            break;
+
+            case MENU_DEL :
+            Delete_Account();
+            break;
+
+            case MENU_TEMP :
+            Temp_Password();
+            getch();
+            break;
+
+            case MENU_QUIT :
+            exit = 1;
+            break;
+
+            default :
+            clear();
+            printw("Wrong Key\n");
+            printw("Press any key to return\n");
+            getch();
+            break;
         }
     }
     endwin();
@@ -306,8 +306,7 @@ void Create_Struct(){
 
     fclose(fpoint);
 }
-char Account_Manage()
-{
+char Account_Manage(){
     printw("1. Login\n");
     printw("2. Create new Account\n");
     printw("3. Delete Account\n");
@@ -315,16 +314,14 @@ char Account_Manage()
     printw("5. Exit\n");
     return wgetch(stdscr);
 }
-char menu()
-{
+char menu(){
     printw("1. Assignment Management\n");
     printw("2. CGPA Management\n");
     printw("3. Change Password\n");
     printw("4. Logout\n");
     return wgetch(stdscr);
 }
-void Search_Assign()
-{
+void Search_Assign(){
     int Asize;
     char input;
 
@@ -345,17 +342,16 @@ void Search_Assign()
     noecho();
     input=wgetch(stdscr);
     echo();
-    switch(input)
-    {
+    switch(input){
         case '1': Add_Assign(); break;
         case '2': Delete_Assign(); break;
         case '3': return; break;
         default: 
-            clear();
-            printw("Wrong Key\n");
-            printw("Press any key to return\n");
-            getch();
-            break;
+                  clear();
+                  printw("Wrong Key\n");
+                  printw("Press any key to return\n");
+                  getch();
+                  break;
     }
     clear();
 }
@@ -520,10 +516,8 @@ void Cor_GPA(int semester, float gpa) {
     printw("GPA is changed successfully!\n");
     getch();
     return ;
-
 }
-void Print_CGPA() //Additional
-{
+void Print_CGPA(){
     int i;
     int tmpSemester;
     float tmpGPA;
@@ -745,8 +739,8 @@ void Delete_Assign() {
 
     printw("Enter the assignment to delete : ");
     scanw("%100[^\n]", target_assign);
-    
-    
+
+
     for(i = 0; i < cur_STUDENT->Assign_Size; i++){
         if(!strcmp(cur_ASSIGN->name, target_assign)){
             assign_flag = 1;
@@ -1038,7 +1032,7 @@ void Change_Password(){
 
     clear();
     while(!len_flag){
-        printw("The new password must be less than 16 letters\n");
+        printw("The new password must be more than 6, less than 16 letters\n");
         printw("Enter new password : ");
         noecho();
         scanw("%s", new_pw);
@@ -1133,7 +1127,7 @@ void Temp_Password(){
     clear();
     echo();
     srand(time(NULL));
-    printw("Student Number:");
+    printw("Student Number : ");
     scanw("%s",Curr_Num);
 
     for(i = 0; i < 4; i++)
