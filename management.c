@@ -1,10 +1,5 @@
 #include "management.h"
 
-// fmt must be string format("")
-// Usage : DEBUG("message : %d", 123);
-#define DEBUG(fmt, ...) fprintf(stderr, "[%d:%s] \n" fmt, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-
-
 int main(){
     int exit = 0, i = 0;
     int login_flag = 0, year_flag = 0, num_flag = 0;
@@ -149,10 +144,6 @@ int main(){
 }
 void Save_Data(){
     int i,j,k;
-    int current_year;
-    int current_num;
-    int current_assign;
-    int current_cgpa;
     FILE* fpoint;
 
     YEAR *head_YEAR = NULL, *cur_YEAR = NULL, *prev_year = NULL;
@@ -160,7 +151,7 @@ void Save_Data(){
     CGPA *head_CGPA = NULL, *cur_CGPA = NULL, *prev_cgpa = NULL;
     ASSIGN *head_ASSIGN = NULL, *cur_ASSIGN = NULL, *prev_assign = NULL;
 
-    fpoint=fopen("check_data.txt","w");
+    fpoint=fopen("data.txt","w");
 
     fprintf(fpoint, "%d\n", TOP->Year_Size);
 
@@ -186,27 +177,27 @@ void Save_Data(){
             for(k = 0; k < cur_STUDENT->Assign_Size; k++){
                 fprintf(fpoint, "%s/%s/%s/%d %d\n", cur_ASSIGN->name, cur_ASSIGN->describe, cur_ASSIGN->professor, cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
                 prev_assign = cur_ASSIGN;
-                free(prev_assign); DEBUG("");
+                free(prev_assign); 
                 cur_ASSIGN = cur_ASSIGN->link;
             }
 
             for(k = 0; k < cur_STUDENT->CGPA_Size; k++){
                 fprintf(fpoint, "%d %.2f\n", cur_CGPA->semester, cur_CGPA->score);
                 prev_cgpa = cur_CGPA;
-                free(prev_cgpa); DEBUG("");
+                free(prev_cgpa); 
                 cur_CGPA = cur_CGPA->link;    
             }
             prev_student = cur_STUDENT;
-            free(prev_student); DEBUG("");
+            free(prev_student); 
             cur_STUDENT = cur_STUDENT->link;
         }
         prev_year = cur_YEAR;
-        free(prev_year); DEBUG("");
+        free(prev_year); 
         cur_YEAR = cur_YEAR->link;
         fprintf(fpoint, "\n");
     }
 
-    free(TOP); DEBUG("");
+    free(TOP); 
 
     fclose(fpoint);
 
@@ -350,12 +341,11 @@ void Search_Assign(){
 }
 
 void Print_Assign(int Asize) {
-    int k,D_day = 0,thistime,thattime;
+    int i = 0, D_day = 0;
     int tday_mon, tday_date, D_mon;
     time_t t;
     struct tm *today;
 
-    int i = 0;
 
     STUDENT *cur_STUDENT = NULL;
     ASSIGN *head_ASSIGN = NULL, *cur_ASSIGN = NULL;
@@ -696,7 +686,7 @@ void Add_Assign(){
     new_ASSIGN = malloc(sizeof(ASSIGN));
     strcpy(new_ASSIGN->name, temp_name);
 
-    printw("Enter rhe description of new assignment : \n");
+    printw("Enter the description of new assignment : \n");
     scanw("%s", new_ASSIGN->describe);
 
     printw("Enter the professor of new assignment : \n");
@@ -1032,7 +1022,7 @@ void Delete_Account(){
     }
 }
 void Change_Password(){
-    char new_pw[17] = {NULL}, confirm_pw[17];
+    char new_pw[17] = {}, confirm_pw[17];
     int len_flag = 0;
 
     YEAR *cur_YEAR = NULL;
@@ -1130,7 +1120,7 @@ int login(){
 void Temp_Password(){
     int flag1=0;
     int year_flag = 0, num_flag = 0;//added->to check info
-    int i; //j, k; used linked list, no need to use repeats
+    int i; 
     char num[5]={};
     char year[5]={};
     int temp_num;//to make random Password
