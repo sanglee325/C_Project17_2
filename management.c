@@ -2,7 +2,7 @@
 
 // fmt must be string format("")
 // Usage : DEBUG("message : %d", 123);
-#define DEBUG(fmt, ...) fprintf(stderr, "[%d:%s] " fmt, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define DEBUG(fmt, ...) fprintf(stderr, "[%d:%s] \n" fmt, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 
 
 int main(){
@@ -24,6 +24,7 @@ int main(){
         
         switch(Account_Manage()){
             clear();
+            year_flag = 0; num_flag = 0;
             case MENU_LOGIN :
                 clear();
                 printw("Student Number : ");
@@ -53,7 +54,7 @@ int main(){
                     prev_student = cur_STUDENT;
 
                     for(i = 0; i < cur_YEAR->Num_Size; i++){
-                        if(!strcmp(cur_STUDENT->number, num)){
+                        if(!strncmp(cur_STUDENT->number, num, 4)){
                             num_flag = 1;
                             break;
                         }
@@ -99,7 +100,17 @@ int main(){
                         }
                     }
                 }
-                else{
+                if(login_flag == 0 && num_flag == 1){
+                    printw("\nThe password of account <%s> is wrong.\n", Curr_Num);
+                    printw("Press any key to return\n");
+                    getch();
+                }
+                else if(login_flag == 0 && num_flag == 0){
+                    printw("\nThe account <%s> does not exist.\n", Curr_Num);
+                    printw("Press any key to return\n");
+                    getch();
+                }
+                else if(login_flag == 0 && year_flag == 0){
                     printw("\nThe account <%s> does not exist.\n", Curr_Num);
                     printw("Press any key to return\n");
                     getch();
@@ -115,12 +126,7 @@ int main(){
                 break;
             
             case MENU_TEMP :
-                temppw_flag = Temp_Password();
-                if(temppw_flag == 0){
-                    clear();
-                    printw("Wrong Information\n");
-                    printw("Press any key to return\n");
-                }
+                Temp_Password();
                 getch();
                 break;
             
@@ -180,27 +186,27 @@ void Save_Data(){
             for(k = 0; k < cur_STUDENT->Assign_Size; k++){
                 fprintf(fpoint, "%s/%s/%s/%d %d\n", cur_ASSIGN->name, cur_ASSIGN->describe, cur_ASSIGN->professor, cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
                 prev_assign = cur_ASSIGN;
-                free(prev_assign); DEBUG("\n");
+                free(prev_assign); DEBUG("");
                 cur_ASSIGN = cur_ASSIGN->link;
             }
 
             for(k = 0; k < cur_STUDENT->CGPA_Size; k++){
                 fprintf(fpoint, "%d %.2f\n", cur_CGPA->semester, cur_CGPA->score);
                 prev_cgpa = cur_CGPA;
-                free(prev_cgpa); DEBUG("\n");
+                free(prev_cgpa); DEBUG("");
                 cur_CGPA = cur_CGPA->link;    
             }
             prev_student = cur_STUDENT;
-            free(prev_student); DEBUG("\n");
+            free(prev_student); DEBUG("");
             cur_STUDENT = cur_STUDENT->link;
         }
         prev_year = cur_YEAR;
-        free(prev_year); DEBUG("\n");
+        free(prev_year); DEBUG("");
         cur_YEAR = cur_YEAR->link;
         fprintf(fpoint, "\n");
     }
 
-    free(TOP); DEBUG("hi\n");
+    free(TOP); DEBUG("");
 
     fclose(fpoint);
 
@@ -215,7 +221,7 @@ void Create_Struct(){
     char* token;//didn't use tokenizing
     char temp[350];
     char temp_year[5], temp_num[5], temp_snum[9];
-    FILE* fpoint = fopen("data.txt", "r");
+    FILE* fpoint = fopen("data_small.txt", "r");
 
     YEAR *head_YEAR = NULL, *new_YEAR = NULL, *tail_YEAR = NULL;
     STUDENT *head_STUDENT = NULL, *new_STUDENT = NULL, *tail_STUDENT = NULL;
@@ -1070,7 +1076,7 @@ int login(){
     return 0;
 }
 
-int Temp_Password(){
+void Temp_Password(){
     int flag1=0;
     int year_flag = 0, num_flag = 0;//added->to check info
     int i; //j, k; used linked list, no need to use repeats
@@ -1130,6 +1136,11 @@ int Temp_Password(){
         if(cur_CGPA->score == temp) flag1 = 1;
     }
 
+    if(num_flag == 0 || year_flag == 0){
+        printw("\nAccount <%s> does not exist.\n", Curr_Num);
+        printw("Press any key to continue...\n");
+    }
+
     if(flag1 == 1){
         for(i = 0; i < 8; i++){
             temp_num = rand() % 93 + 21;
@@ -1137,7 +1148,5 @@ int Temp_Password(){
         }
         printw("Temporary Password is <%s>\n", temppassword);
         strcpy(cur_STUDENT->password, temppassword);
-        return 1;
     }
-    return 0;
 }

@@ -64,12 +64,6 @@ typedef struct HEAD
   int Year_Size;
   YEAR* ST_YEAR; // add link
 }TREE_HEAD;
-    
-YEAR *head_YEAR = NULL, *new_YEAR = NULL, *tail_YEAR = NULL, *cur_YEAR = NULL;
-STUDENT *head_STUDENT = NULL, *new_STUDENT = NULL, *tail_STUDENT = NULL, *cur_STUDENT = NULL;
-CGPA *head_CGPA = NULL, *new_CGPA = NULL, *tail_CGPA = NULL, *cur_CGPA = NULL;
-ASSIGN *head_ASSIGN = NULL, *new_ASSIGN = NULL, *tail_ASSIGN = NULL, *cur_ASSIGN = NULL;
-/*added for comfortable use of linked list*/
 
 int Login_Year;//used in array not used
 int Login_Num;//used in array not used
@@ -86,7 +80,7 @@ char menu();
 char cgpa_menu();
 void Add_GPA();
 void Del_GPA();
-void Cor_GPA(char semester,float gpa);
+void Cor_GPA(int semester,float gpa);//changed semester to int type
 void Create_Struct();
 void Search_Assign();
 void Search_CGPA();
@@ -101,6 +95,6 @@ void Sort_Assign();
 void Add_Assign();
 void Delete_Assign();
 int login();
-int Temp_Password();//changed to int for exclusion
+void Temp_Password();//changed to int for exclusion
 char Account_Manage();
 #endif
