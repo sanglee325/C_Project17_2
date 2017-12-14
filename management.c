@@ -221,7 +221,7 @@ void Create_Struct(){
     char* token;//didn't use tokenizing
     char temp[350];
     char temp_year[5], temp_num[5], temp_snum[9];
-    FILE* fpoint = fopen("data_small.txt", "r");
+    FILE* fpoint = fopen("data.txt", "r");
 
     YEAR *head_YEAR = NULL, *new_YEAR = NULL, *tail_YEAR = NULL;
     STUDENT *head_STUDENT = NULL, *new_STUDENT = NULL, *tail_STUDENT = NULL;
@@ -381,21 +381,22 @@ void Print_Assign(int Asize) {
     tday_date = today->tm_mday;
     D_mon = cur_ASSIGN->date[0];
 
+
     for(i = 1; i <= cur_STUDENT->Assign_Size; i++){
         printw("<%d> Name\t: %s\n", i, cur_ASSIGN->name);
         printw("    Describe\t: %s\n", cur_ASSIGN->describe);
         printw("    Professor\t: %s\n", cur_ASSIGN->professor);
-        printw("    Due\t\t: %d/%2d\n", cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
+        printw("    Due\t: %d/%2d\n", cur_ASSIGN->date[0], cur_ASSIGN->date[1]);
 
         D_day = 0;
         if(cur_ASSIGN->date[0] == tday_mon && cur_ASSIGN->date[1] == tday_date){
-            printw("    D-day\t: TODAY!!!\n");
+            printw("    D-day\t: TODAY!\n");
         } 
         else if(cur_ASSIGN->date[0] < tday_mon){
-            printw("    D-day\t: OVERR!!!\n");
+            printw("    D-day over!!\n");
         } 
         else if(cur_ASSIGN->date[0] == tday_mon && cur_ASSIGN->date[1] < tday_date){
-            printw("    D-day\t: OVERR!!!\n");
+            printw("    D-day over!!\n");
         } 
         else{
             if(cur_ASSIGN->date[0] > tday_mon){
@@ -416,6 +417,7 @@ void Print_Assign(int Asize) {
             printw("    D-day\t: %d\n", D_day);
         }
 
+        printw("\n");
         cur_ASSIGN = cur_ASSIGN->link;
     }
 }
@@ -554,9 +556,48 @@ void Print_CGPA() //Additional
     getch();
 }
 void Print_CGPA_Graph() {
-    /*
-       To do...(Additional)
-       */
+    int i, ver = 0, hor = 8, num = 0; 
+    int tmpSemester;
+    float tmpGPA, gpa = 4;
+    float sum = 0;
+
+    STUDENT *cur_STUDENT = NULL;
+    CGPA *cur_CGPA = NULL;
+
+    cur_STUDENT = node_login_Num;
+    cur_CGPA = cur_STUDENT->Child_C;
+
+    for(i = 0; i < 23; i++){
+        if((i - 2)%5 == 0){
+            printw(" %.1f |\n", gpa);
+            gpa--;
+        } 
+        else
+            printw("     |\n");
+    }
+    printw("------------------------------------------------------\n");
+    for(i = 0; i <= 8; i++){
+        if(i == 0)
+            printw("     |");
+        else
+            printw("  %d  |", i);
+    }
+
+    num = 2 * cur_STUDENT->CGPA_Size + 7;
+    for(i = 0; i < cur_STUDENT->CGPA_Size; i++){
+        ver = (cur_CGPA->score)/0.2 + 0.5; 
+        if(0 <= cur_CGPA->score && cur_CGPA->score < 0.2){
+            mvprintw(22 + num - ver, cur_CGPA->semester + hor, "*", cur_CGPA->score);
+            mvprintw(22 + num - ver - 1, cur_CGPA->semester + hor - 1, "%.2f", cur_CGPA->score);
+            hor += 6;
+        }
+        else{
+            mvprintw(22 + num - ver, cur_CGPA->semester + hor, "*", cur_CGPA->score);
+            mvprintw(22 + num - ver + 1, cur_CGPA->semester + hor - 1, "%.2f", cur_CGPA->score);
+            hor += 6;
+        }
+        cur_CGPA = cur_CGPA->link;
+    }
 }
 void Sort_Assign(){
     typedef struct {
@@ -714,7 +755,6 @@ void Delete_Assign() {
         prev_assign = cur_ASSIGN;
         cur_ASSIGN = cur_ASSIGN->link;
     }
-    //define that there is no same name of assignment 
 
     if(assign_flag == 1) {
         cur_STUDENT->Assign_Size--;
