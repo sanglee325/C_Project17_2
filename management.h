@@ -68,7 +68,6 @@ typedef struct HEAD
 YEAR *node_login_Year; // added to keep in track
 STUDENT *node_login_Num;//added to keep in track
 TREE_HEAD* TOP;
-void Load_Data();
 void Save_Data();
 char menu();
 char cgpa_menu();
@@ -84,7 +83,6 @@ void Print_CGPA_Graph();
 void New_Account();
 void Delete_Account();
 void Change_Password();
-void rank();
 void Sort_Assign();
 void Add_Assign();
 void Delete_Assign();

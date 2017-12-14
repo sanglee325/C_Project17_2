@@ -26,120 +26,120 @@ int main(){
             clear();
             year_flag = 0; num_flag = 0;
             case MENU_LOGIN :
-            clear();
-            printw("Student Number : ");
-            scanw("%s", Curr_Num);
-            for(i = 0; i < 4; i++)
-                year[i] = Curr_Num[i];
-            for(i = 4; i < 8; i++)
-                num[i - 4] = Curr_Num[i];//copying st number
+                clear();
+                printw("Student Number : ");
+                scanw("%s", Curr_Num);
+                for(i = 0; i < 4; i++)
+                    year[i] = Curr_Num[i];
+                for(i = 4; i < 8; i++)
+                    num[i - 4] = Curr_Num[i];//copying st number
+    
 
-
-            cur_YEAR = head_YEAR = TOP->ST_YEAR;
-            prev_year = cur_YEAR;
-
-            for(i = 0; i < TOP->Year_Size; i++){
-                if(!strncmp(cur_YEAR->year, year, 4)){
-                    year_flag = 1;
-                    break;
-                }
+                cur_YEAR = head_YEAR = TOP->ST_YEAR;
                 prev_year = cur_YEAR;
-                cur_YEAR = cur_YEAR->link;
-            }
-
-
-            if(year_flag == 1){
-                head_STUDENT = cur_YEAR->ST_NUM;
-                cur_STUDENT = head_STUDENT;
-                prev_student = cur_STUDENT;
-
-                for(i = 0; i < cur_YEAR->Num_Size; i++){
-                    if(!strncmp(cur_STUDENT->number, num, 4)){
-                        num_flag = 1;
+    
+                for(i = 0; i < TOP->Year_Size; i++){
+                    if(!strncmp(cur_YEAR->year, year, 4)){
+                        year_flag = 1;
                         break;
                     }
-                    prev_student = cur_STUDENT;
-                    cur_STUDENT = cur_STUDENT->link;
+                    prev_year = cur_YEAR;
+                    cur_YEAR = cur_YEAR->link;
                 }
-            }
 
-            if(num_flag == 1) {
-                printw("Password : ");
-                noecho();
-                scanw("%s", Curr_Pass);
-                echo();
 
-                login_flag = login();
-                if(login_flag == 1){
-                    while(!login_menu_exit){
-                        clear();
-                        switch(menu()){
-                            case MENU_ASSIGN :
-                                Search_Assign();
-                                break;
+                if(year_flag == 1){
+                    head_STUDENT = cur_YEAR->ST_NUM;
+                    cur_STUDENT = head_STUDENT;
+                    prev_student = cur_STUDENT;
 
-                            case MENU_CGPA :
-                                Search_CGPA();
-                                break;                            
+                    for(i = 0; i < cur_YEAR->Num_Size; i++){
+                        if(!strncmp(cur_STUDENT->number, num, 4)){
+                            num_flag = 1;
+                            break;
+                        }
+                        prev_student = cur_STUDENT;
+                        cur_STUDENT = cur_STUDENT->link;
+                    }
+                }
 
-                            case MENU_CHANGE :
-                                Change_Password();
-                                break;
+                if(num_flag == 1) {
+                    printw("Password : ");
+                    noecho();
+                    scanw("%s", Curr_Pass);
+                    echo();
 
-                            case MENU_LOGOUT :
-                                login_menu_exit = 1;
-                                break;
+                    login_flag = login();
+                    if(login_flag == 1){
+                        while(!login_menu_exit){
+                            clear();
+                            switch(menu()){
+                                case MENU_ASSIGN :
+                                    Search_Assign();
+                                    break;
 
-                            default :
-                                clear();
-                                printw("Wrong Key\n");
-                                printw("Press any key to return\n");
-                                getch();
-                                break;
+                                case MENU_CGPA :
+                                    Search_CGPA();
+                                    break;                            
+
+                                case MENU_CHANGE :
+                                    Change_Password();
+                                    break;
+
+                                case MENU_LOGOUT :
+                                    login_menu_exit = 1;
+                                    break;
+
+                                default :
+                                    clear();
+                                    printw("Wrong Key\n");
+                                    printw("Press any key to return\n");
+                                    getch();
+                                    break;
+                            }
                         }
                     }
                 }
-            }
-            if(login_flag == 0 && num_flag == 1){
-                printw("\nThe password of account <%s> is wrong.\n", Curr_Num);
-                printw("Press any key to return\n");
-                getch();
-            }
-            else if(login_flag == 0 && num_flag == 0){
-                printw("\nThe account <%s> does not exist.\n", Curr_Num);
-                printw("Press any key to return\n");
-                getch();
-            }
-            else if(login_flag == 0 && year_flag == 0){
-                printw("\nThe account <%s> does not exist.\n", Curr_Num);
-                printw("Press any key to return\n");
-                getch();
-            }
-            break;
+                if(login_flag == 0 && num_flag == 1){
+                    printw("\nThe password of account <%s> is wrong.\n", Curr_Num);
+                    printw("Press any key to return\n");
+                    getch();
+                }
+                else if(login_flag == 0 && num_flag == 0){
+                    printw("\nThe account <%s> does not exist.\n", Curr_Num);
+                    printw("Press any key to return\n");
+                    getch();
+                }
+                else if(login_flag == 0 && year_flag == 0){
+                    printw("\nThe account <%s> does not exist.\n", Curr_Num);
+                    printw("Press any key to return\n");
+                    getch();
+                }
+                break;
 
             case MENU_NEW : 
-            New_Account();
-            break;
+                New_Account();
+                break;
 
             case MENU_DEL :
-            Delete_Account();
-            break;
+                Delete_Account();
+                break;
 
             case MENU_TEMP :
-            Temp_Password();
-            getch();
-            break;
+                Temp_Password();
+                getch();
+                break;
 
             case MENU_QUIT :
-            exit = 1;
-            break;
+                exit = 1;
+                break;
 
             default :
-            clear();
-            printw("Wrong Key\n");
-            printw("Press any key to return\n");
-            getch();
-            break;
+                clear();
+                printw("Wrong Key\n");
+                printw("Press any key to return\n");
+                getch();
+                break;
         }
     }
     endwin();
@@ -214,13 +214,6 @@ void Save_Data(){
 void Create_Struct(){
     int i,j,k;
     int exit = 0, flag_exit;
-    int current_year;
-    int current_num;
-    int current_assign;
-    int current_cgpa;
-    char* token;//didn't use tokenizing
-    char temp[350];
-    char temp_year[5], temp_num[5], temp_snum[9];
     FILE* fpoint = fopen("data.txt", "r");
 
     YEAR *head_YEAR = NULL, *new_YEAR = NULL, *tail_YEAR = NULL;
@@ -480,16 +473,15 @@ void Add_GPA(){
         return ;
     }//edit the semster which are already saved
 
-    cur_STUDENT->CGPA_Size++;
     gpa_size++;
 
-    head_CGPA = cur_STUDENT->Child_C;
-    cur_CGPA = head_CGPA;
+    cur_CGPA = head_CGPA = cur_STUDENT->Child_C;
 
-    while(cur_CGPA->link != NULL){
+    for(i = 0; i < cur_STUDENT->CGPA_Size - 1; i++){
         cur_CGPA = cur_CGPA->link;
     }
 
+    cur_STUDENT->CGPA_Size++;
     new_CGPA = malloc(sizeof(CGPA));
     new_CGPA->semester = semester;
     new_CGPA->score = gpa;
@@ -550,7 +542,7 @@ void Print_CGPA(){
     getch();
 }
 void Print_CGPA_Graph() {
-    int i, ver = 0, hor = 8, num = 0; 
+    int i, ver = 0, hor = 7, num = 0; 
     int tmpSemester;
     float tmpGPA, gpa = 4;
     float sum = 0;
@@ -569,8 +561,11 @@ void Print_CGPA_Graph() {
         else
             printw("     |\n");
     }
-    printw("------------------------------------------------------\n");
-    for(i = 0; i <= 8; i++){
+    for(i = 0; i <= cur_STUDENT->CGPA_Size; i++)
+        printw("------");
+    printw("\n");
+    
+    for(i = 0; i <= cur_STUDENT->CGPA_Size; i++){
         if(i == 0)
             printw("     |");
         else
@@ -579,16 +574,17 @@ void Print_CGPA_Graph() {
 
     num = 2 * cur_STUDENT->CGPA_Size + 7;
     for(i = 0; i < cur_STUDENT->CGPA_Size; i++){
+       
         ver = (cur_CGPA->score)/0.2 + 0.5; 
         if(0 <= cur_CGPA->score && cur_CGPA->score < 0.2){
             mvprintw(22 + num - ver, cur_CGPA->semester + hor, "*", cur_CGPA->score);
             mvprintw(22 + num - ver - 1, cur_CGPA->semester + hor - 1, "%.2f", cur_CGPA->score);
-            hor += 6;
+            hor += 5;
         }
         else{
             mvprintw(22 + num - ver, cur_CGPA->semester + hor, "*", cur_CGPA->score);
             mvprintw(22 + num - ver + 1, cur_CGPA->semester + hor - 1, "%.2f", cur_CGPA->score);
-            hor += 6;
+            hor += 5;
         }
         cur_CGPA = cur_CGPA->link;
     }
@@ -665,37 +661,40 @@ void Sort_Assign(){
 
 }
 void Add_Assign(){
-    int gpa_size;
     int i = 0, name_flag = 0;
+    char temp_name[100];
 
     STUDENT *cur_STUDENT = NULL;
     ASSIGN *head_ASSIGN = NULL, *cur_ASSIGN = NULL, *new_ASSIGN = NULL;
 
     echo();
+    clear();
 
     cur_STUDENT = node_login_Num;
 
-    new_ASSIGN = malloc(sizeof(ASSIGN));
-    while(!name_flag){
-        clear();
-        name_flag = 0;
-        cur_ASSIGN = node_login_Num->Child_A;
-        printw("Enter the name of new assignment : \n");
-        scanw("%s", new_ASSIGN->name);
+    printw("Enter the name of new assignment : \n");
+    scanw("%s", temp_name);
 
-        for(i = 0; i < cur_STUDENT->Assign_Size; i++){
-            if(strcmp(new_ASSIGN->name, cur_ASSIGN->name) == 0){
-                printw("There exists the same name of assignment.\nChoose different name.\n\n");
-                printw("Press any key to continue\n");
-                getch();
-                name_flag = 0;
-                break;
-            }
-            else name_flag = 1;
-            cur_ASSIGN = cur_ASSIGN->link;
-        }
-        if(cur_ASSIGN == NULL) name_flag = 1;
+    if(strlen(temp_name) < 1){
+        printw("The name of assignment has to be longer than 1 letter.\n");
+        getch();
+        return;
     }
+
+
+    cur_ASSIGN = node_login_Num->Child_A;
+    for(i = 0; i < cur_STUDENT->Assign_Size; i++){
+        if(strcmp(temp_name, cur_ASSIGN->name) == 0){
+            printw("There exists the same name of assignment.\n");
+            printw("Press any key to continue\n");
+            getch();
+            return;
+        }
+        cur_ASSIGN = cur_ASSIGN->link;
+    }
+
+    new_ASSIGN = malloc(sizeof(ASSIGN));
+    strcpy(new_ASSIGN->name, temp_name);
 
     printw("Enter rhe description of new assignment : \n");
     scanw("%s", new_ASSIGN->describe);
@@ -918,7 +917,7 @@ void Delete_Account(){
 
     clear();
     echo();
-    printw("Student Number : ");
+    printw("Enter the Student Number to Delete : ");
     scanw("%s",Curr_Num);
 
     for(i = 0; i < 4; i++)
@@ -955,6 +954,11 @@ void Delete_Account(){
         }
     }
 
+    if(year_flag == 0 || num_flag == 0){
+        printw("The account <%s> does not exist.\n", Curr_Num);
+        getch();
+        return;
+    }
 
     if(num_flag == 1){
         noecho();
@@ -966,6 +970,13 @@ void Delete_Account(){
             pw_flag = 1;
         }
     }
+
+    if(pw_flag == 0){
+        printw("Wrong password.\n");
+        getch();
+        return;
+    }
+
     if(pw_flag == 1){
         if(cur_STUDENT -> CGPA_Size != 0){
             printw("Input latest semester's GPA : ");
@@ -1015,13 +1026,13 @@ void Delete_Account(){
         getch();
     }
     else{
-        printw("Wrong Information\n");
+        printw("Wrong CGPA\n");
         getch();
         return;
     }
 }
 void Change_Password(){
-    char new_pw[17], confirm_pw[17];
+    char new_pw[17] = {NULL}, confirm_pw[17];
     int len_flag = 0;
 
     YEAR *cur_YEAR = NULL;
@@ -1031,20 +1042,26 @@ void Change_Password(){
     cur_YEAR = node_login_Year;
 
     clear();
-    while(!len_flag){
-        printw("The new password must be more than 6, less than 16 letters\n");
-        printw("Enter new password : ");
-        noecho();
-        scanw("%s", new_pw);
+    
+    printw("The new password must be more than 6, less than 16 letters\n");
+    printw("Enter new password : ");
+    noecho();
+    scanw("%s", new_pw);
+    echo();
 
-        if(strlen(new_pw) <= 5) {
-            printw("The password is too short.\n");
-            getch();
-            clear();
-        }
-        else len_flag = 1;
+    if(strlen(new_pw) < 1){
+        printw("You must enter a new password!\n");
+        getch();
+        return;
     }
+    else if(strlen(new_pw) < 6) {
+        printw("The password is too short.\n");
+        getch();
+        return;
+    }
+
     printw("Confirm new password : ");
+    noecho();
     scanw("%s", confirm_pw);
     echo();
 
@@ -1182,5 +1199,8 @@ void Temp_Password(){
         }
         printw("Temporary Password is <%s>\n", temppassword);
         strcpy(cur_STUDENT->password, temppassword);
+    }
+    else{
+        printw("Wrong CGPA\n");
     }
 }
